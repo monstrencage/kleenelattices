@@ -17,12 +17,12 @@ type transition = Smpl of place * lettre * place | Open of place * (place * plac
 type net = int * transition list
 
 let input = function
-  | Smpl (x,_,_) | Open (x,_) -> [x]
-  | Close ((x,y),_) -> sort [x;y]
+  | Smpl (x,_,_) | Open (x,_) -> ISet.singleton x
+  | Close ((x,y),_) -> ISet.add x (ISet.singleton y)
 
 let output = function
-  | Smpl (_,_,x) | Close (_,x) -> [x]
-  | Open (_,(x,y)) -> sort [x;y]
+  | Smpl (_,_,x) | Close (_,x) -> ISet.singleton x
+  | Open (_,(x,y)) -> ISet.add x (ISet.singleton y)
 
 
 let rename f = function
@@ -75,11 +75,9 @@ type marquage = ISet.t
 
 let one_step (m : marquage) (_,p : net) =
   List.filter 
-    (fun t -> List.for_all (fun x -> ISet.mem x m) (input t))
+    (fun t -> ISet.subset (input t) m)
     p
 
 let go (m : marquage) tr : marquage =
-  List.fold_left (fun acc x -> ISet.add x acc)
-    (List.fold_left (fun acc x -> ISet.remove x acc) m (input tr))
-    (output tr)
+  ISet.union (output tr) (ISet.diff m (input tr))
 
