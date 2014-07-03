@@ -18,20 +18,12 @@ let rm l1 l2 =
   in
   aux (l1,l2)
 
-module Lst = struct
-  type t = int list
-  let compare = compare
-end
 module Int = struct
   type t = int
   let compare = compare
 end
 
-module LMap = Map.Make(Lst)
-
 module IMap = Map.Make(Int)
-
-module LSet = Set.Make(Lst)
 
 module ISet = Set.Make(Int)
 
@@ -41,14 +33,19 @@ module MSet =
     let compare = IMap.compare compare
   end)
 
-let add_lst x y m =
-  try LMap.add x (y::(LMap.find x m)) m
-  with Not_found -> LMap.add x [y] m
+module ISSet = Set.Make(ISet)
+module ISMap = Map.Make(ISet)
 
 let get_def def get x m =
   try get x m
   with Not_found -> def
 
+(*let add_lst x y m =
+  try LMap.add x (y::(LMap.find x m)) m
+  with Not_found -> LMap.add x [y] m*)
+
+let add_set m x lts =
+  ISMap.add m (x::(get_def [] ISMap.find m lts)) lts
 
 let bind f l = 
   let rec aux = function
@@ -63,5 +60,39 @@ let ilst2set =
 let mlst2set =
   List.fold_left (fun acc i -> MSet.add i acc) MSet.empty
 
-module ISSet = Set.Make(ISet)
-module ISMap = Map.Make(ISet)
+
+module StrInt = struct
+  type t = string * int
+  let compare = Pervasives.compare
+end
+
+module SISet = Set.Make (StrInt)
+
+let support m =
+  IMap.fold (fun i _ -> ISet.add i) m ISet.empty
+
+module Descriptor = struct
+    type descriptor = int
+    let default = 0
+    type accumulator = unit
+    let union d1 d2 acc = (d1+d2,())
+  end
+
+module IUF = struct
+  include
+    UnionFind.Make(struct
+      include Int
+      let equal i j = (compare i j = 0)
+      module Map = Map.Make(Int)
+    end)(Descriptor)
+  let union i j eq =
+    fst (union i j eq ())
+end
+
+let eqstates eq1 eq2 m = 
+  ISet.for_all 
+    (fun i -> 
+      ISet.for_all 
+	(fun j -> IUF.equivalent i j eq1 = IUF.equivalent i j eq2)
+	m)
+    m

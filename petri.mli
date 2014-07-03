@@ -10,3 +10,4 @@ val trad : string Expr.expr -> net
 type marquage = Tools.ISet.t
 val one_step : marquage -> net -> transition list
 val go : marquage -> transition -> marquage
+val fn : net -> marquage -> bool

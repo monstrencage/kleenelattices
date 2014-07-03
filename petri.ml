@@ -81,3 +81,23 @@ let one_step (m : marquage) (_,p : net) =
 let go (m : marquage) tr : marquage =
   ISet.union (output tr) (ISet.diff m (input tr))
 
+let fn pet m = 
+  let fnst = ISet.singleton (fst pet -1) in
+  let eps = function
+    | Open _ | Close _ | Smpl (_,None,_) -> true
+    | Smpl _ -> false
+  in
+  let rec aux m =
+    if ISet.equal m fnst
+    then true
+    else 
+      let next = List.filter eps (one_step m pet) in
+      List.fold_left
+	(fun b tr ->
+	  if b 
+	  then b
+	  else aux (go m tr))
+	false
+	next
+  in
+  aux m
