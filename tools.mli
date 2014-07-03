@@ -128,4 +128,5 @@ module IUF : sig
   val domain : state -> item list
 end
 
-val eqstates : IUF.state -> IUF.state -> ISet.t -> bool
+val eqstates : (int -> int -> bool) -> (int -> int -> bool) -> 
+  ISet.t -> bool

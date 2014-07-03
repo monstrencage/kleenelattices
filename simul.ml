@@ -2,79 +2,92 @@ open Tools
 open Petri
 
 type tranche = SISet.t IMap.t
+type equiv = int -> int -> bool
+type equiv_state = IUF.state
+type ('a,'b) lts = 
+  'a * ('b * marquage) list ISMap.t * ('a -> bool)
+type readstate = int IMap.t
+type readstateset = MSet.t
+type trans = equiv * tranche
+type trans_state = equiv_state * tranche
 
 exception Nope
 
-let correct_tr m0 (eq,part,act) = 
+let correct_tr (m0 : marquage) ((eq,part),act: trans_state * marquage) 
+    : bool = 
   let m = support part 
   and supeq = ilst2set (IUF.domain eq) in
   ISet.subset (ISet.inter supeq m0) m && ISet.is_empty (ISet.inter supeq act)
 
-let push m (eq,part,actif) = function
+let push (m : marquage) ((eq,part),actif : trans_state * marquage) 
+    : transition -> trans_state * marquage = function
   | Smpl (p,Some x,q) -> 
-    (eq,
-     ISet.fold 
-       (fun k acc -> 
-	 if IUF.equivalent k p eq 
-	 then 
-	   IMap.add k 
-	     (SISet.add 
-		(x,q) 
-		(get_def SISet.empty IMap.find k part)) 
-	     acc
-	 else acc)
-       m
-       part,
+    ((eq,
+      ISet.fold 
+	(fun k acc -> 
+	  if IUF.equivalent k p eq 
+	  then 
+	    IMap.add k 
+	      (SISet.add 
+		 (x,q) 
+		 (get_def SISet.empty IMap.find k part)) 
+	      acc
+	  else acc)
+	m
+	part),
      ISet.remove p actif)
   | Smpl (p,None,q) ->
-    (IUF.union p q eq,part,ISet.add q (ISet.remove p actif))
+    ((IUF.union p q eq,part),ISet.add q (ISet.remove p actif))
   | Open (p,(q1,q2)) ->
-    (IUF.union p q1 (IUF.union q1 q2 eq),part,
-     ISet.add q1 (ISet.add q2 (ISet.remove p actif)))
+    ((IUF.union p q1 (IUF.union q1 q2 eq),part),
+      ISet.add q1 (ISet.add q2 (ISet.remove p actif)))
   | Close ((p1,p2),q) ->
-    (IUF.union p1 p2 (IUF.union p1 q eq),part,
-     ISet.add q (ISet.remove p1 (ISet.remove p2 actif)))
+    ((IUF.union p1 p2 (IUF.union p1 q eq),part),
+      ISet.add q (ISet.remove p1 (ISet.remove p2 actif)))
 
-let targ m =
-  IMap.fold (fun _ -> SISet.fold (fun (_,j) -> ISet.add j)) m ISet.empty
+let targ (m : tranche) : marquage=
+  IMap.fold 
+    (fun _ -> SISet.fold (fun (_,j) -> ISet.add j)) m ISet.empty
 
-let nextstep (n,tr : net) (m : marquage) =
+let mkequiv : equiv_state -> equiv = fun e i j ->
+  IUF.equivalent i j e
+
+let nextstep (n,tr : net) (m : marquage) 
+    : (trans * marquage) list=
   let rec aux acc eq part actif =
     let trans = 
       List.map 
-	(push m (eq,part,actif))
+	(push m ((eq,part),actif))
 	(one_step actif (n,tr))
     in
     List.fold_left
-      (fun acc (eq',part',act') -> 
+      (fun acc ((eq',part'),act') -> 
 	if act' = actif
 	then acc 
 	else  
 	  let acc' =
-	    if correct_tr m (eq',part',act')
+	    if correct_tr m ((eq',part'),act')
 	    then
 	      if List.exists 
-		(fun (e,(_,p)) -> 
-		  IMap.equal SISet.equal p part' && eqstates e eq' m)
+		(fun ((e,p),_) -> 
+		  IMap.equal 
+		    SISet.equal p part' && 
+		    eqstates e (mkequiv eq') m)
 		acc
 	      then acc
-	      else (eq',(ISet.union act' (targ part'),part'))::acc
+	      else 
+		(((mkequiv eq'),part'),ISet.union act' (targ part'))
+		::acc
 	    else acc
 	  in
 	  aux acc' eq' part' act')
       acc
       trans
   in
-  let res =
-    aux [] IUF.initial IMap.empty m
-  in
-  List.map 
-    (fun (e,(t,p)) -> 
-      (fun i j -> IUF.equivalent i j e),
-      (t,p )) res
+  aux [] IUF.initial IMap.empty m
 
 
-let getlts pet =
+let getlts (pet : Petri.net) : (marquage,equiv * tranche) lts =
   let rec aux states lts = function
     | [] -> states,lts
     | m::todo ->
@@ -84,29 +97,22 @@ let getlts pet =
 	let st = ISSet.add m states in
 	let lts',td' =
 	  (List.fold_left 
-	     (fun (lts,todo) (r,(m',tr)) -> 
-	       if ISSet.mem m' st 
-	       then (add_set m (r,tr,m') lts,todo)
-	       else (add_set m (r,tr,m') lts,m'::todo))
+	     (fun (lts,todo) ((r,tr),m') -> 
+	       add_set m ((r,tr),m') lts,
+	       if ISSet.mem m' st then todo else todo)
 	     (lts,todo)
 	     (nextstep pet m))
 	in
 	aux st lts' td'
   in
   let (s,lts) = aux ISSet.empty ISMap.empty [ISet.singleton 0] in
-  let lts' =
-    ISMap.mapi
-      (fun i ->
-	List.map
-	  (fun (eq,tr,j) ->
-	    (eq,tr,j)))
-      lts
-  in
-  ([0],lts',ISSet.filter (fn pet) s)
+  let fnst = ISSet.filter (fn pet) s in
+  (ISet.singleton 0,lts,(fun m -> ISSet.mem m fnst))
 
 exception Echec
 
-let apply m1 eq t1 = function
+let apply (m1 : readstate) (eq,t1 : trans) 
+    : transition -> readstateset = function
     | Smpl (i,None,j) -> 
       MSet.singleton (IMap.add j (IMap.find i m1) (IMap.remove i m1))
     | Smpl (i,Some x,j) ->
@@ -130,7 +136,10 @@ let apply m1 eq t1 = function
 	  (IMap.add j k1 (IMap.remove i1 (IMap.remove i2 m1)))
       else MSet.empty
 
-let move i jl (tr2,tr2eps) = 
+type readtrans = tranche * ISet.t IMap.t
+
+let move (i : int) (jl : int list) (tr2,tr2eps : readtrans) 
+    : readtrans = 
   let tr2' = 
     IMap.map 
       (fun s -> 
@@ -151,14 +160,15 @@ let move i jl (tr2,tr2eps) =
   in
   (tr2',tr2eps')
 
-let pred i tr2eps =
+let pred (i : int) tr2eps : ISet.t =
   IMap.fold 
     (fun k s acc -> 
       if ISet.mem i s then ISet.add k acc else acc)
     tr2eps
     ISet.empty
 
-let tryandmove i x j (tr2,tr2eps) =
+let tryandmove i x j (tr2,tr2eps : readtrans) 
+    : readtrans =
   if IMap.exists 
     (fun _ s -> SISet.exists (fun (_,l) -> l=i) s)
     tr2
@@ -180,7 +190,8 @@ let tryandmove i x j (tr2,tr2eps) =
      IMap.map
        (ISet.remove i) tr2eps)
 
-let add_trans acc = function
+let add_trans (acc :readtrans)
+    : transition -> readtrans = function
   | Smpl (i,None,j) -> 
     move i [j] acc
   | Smpl (i,Some x,j) ->
@@ -193,8 +204,9 @@ let add_trans acc = function
 (*let sortmaps l1 =
   List.fast_sort (IMap.compare compare) l1*)
 
-let ( >> ) (m1,(eq,t1)) (m2,(t2,t2eps)) =
-(*  try *)
+let ( >> ) 
+    (m1,(eq,t1) : readstate * trans) 
+    (m2,(t2,t2eps) : readstate * readtrans) : bool =
     (IMap.for_all
        (fun i ->
 	 ISet.for_all
@@ -214,9 +226,9 @@ let ( >> ) (m1,(eq,t1)) (m2,(t2,t2eps)) =
 		 (x,IMap.find j m2) 
 		 (IMap.find (IMap.find i m1) t1)))
 	 t2)
-(*  with Not_found -> false*)
 
-let simulstep pet2 (eq,t1) m1lst =
+let simulstep (pet2 : Petri.net) (eq,t1 : trans) (m1lst : readstateset)
+    : readstateset =
 (** tries to find a sequence of transitions in pet2 
     that allow for m1 to be transformed in something
     compatible with t1. *)
@@ -231,7 +243,7 @@ let simulstep pet2 (eq,t1) m1lst =
 	      if (m1,(eq,t1)) >> (m',tr2') 
 	      then (tr2',m')::acc
 	      else (aux m1 (m',tr2'))@acc) 
-	    (apply m eq t1 t2)
+	    (apply m (eq,t1) t2)
 	    []
 	with Echec -> [])
       trpos
@@ -251,8 +263,9 @@ let simulstep pet2 (eq,t1) m1lst =
      (bind (fun (m1,tr2) -> aux m1 (m1,tr2)) 
 	(MSet.fold trinit m1lst [])))
 
-let fninf fn1 pet2 (mark,m1) =
-  if ISSet.mem mark fn1
+let fninf (fn1 : marquage -> bool) (pet2 : Petri.net) 
+    (mark,m1 : marquage * readstateset) : bool =
+  if fn1 mark
   then
     MSet.exists
       (fun m1 ->
@@ -291,7 +304,7 @@ let simul pet1 pet2 =
 	then true
 	else
 	  List.fold_left
-	    (fun b (eq,t1,mark') -> 
+	    (fun b ((eq,t1),mark') -> 
 	      aux acc' (k+1) (mark',simulstep pet2 (eq,t1) ms))
 	    true
 	    next

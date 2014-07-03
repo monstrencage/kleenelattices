@@ -93,6 +93,6 @@ let eqstates eq1 eq2 m =
   ISet.for_all 
     (fun i -> 
       ISet.for_all 
-	(fun j -> IUF.equivalent i j eq1 = IUF.equivalent i j eq2)
+	(fun j -> eq1 i j = eq2 i j)
 	m)
     m
