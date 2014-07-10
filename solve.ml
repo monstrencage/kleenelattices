@@ -7,7 +7,9 @@ let get_eq s =
   Parser.equation Lexer.token (Lexing.from_string s)
 
 let inf e1 e2 =
-  simul (trad e1) (trad e2) = None
+  match simul (trad e1) (trad e2) with
+  | None -> true
+  | Some l -> (*assert (PrintTrans.test l);*)false
 
 let solve (c,e1,e2) =
   match c with

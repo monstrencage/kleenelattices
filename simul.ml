@@ -2,25 +2,23 @@ open Tools
 open Petri
 
 type tranche = SISet.t IMap.t
-type equiv = int -> int -> bool
-type equiv_state = IUF.state
+type equiv = IUF.state
 type ('a,'b) lts = 
   'a * ('b * marquage) list ISMap.t * ('a -> bool)
 type readstate = int IMap.t
 type readstateset = MSet.t
 type trans = equiv * tranche
-type trans_state = equiv_state * tranche
 
 exception Nope
 
-let correct_tr (m0 : marquage) ((eq,part),act: trans_state * marquage) 
+let correct_tr (m0 : marquage) ((eq,part),act: trans * marquage) 
     : bool = 
   let m = support part 
   and supeq = ilst2set (IUF.domain eq) in
   ISet.subset (ISet.inter supeq m0) m && ISet.is_empty (ISet.inter supeq act)
 
-let push (m : marquage) ((eq,part),actif : trans_state * marquage) 
-    : transition -> trans_state * marquage = function
+let push (m : marquage) ((eq,part),actif : trans * marquage) 
+    : transition -> trans * marquage = function
   | Smpl (p,Some x,q) -> 
     ((eq,
       ISet.fold 
@@ -49,7 +47,7 @@ let targ (m : tranche) : marquage=
   IMap.fold 
     (fun _ -> SISet.fold (fun (_,j) -> ISet.add j)) m ISet.empty
 
-let mkequiv : equiv_state -> equiv = fun e i j ->
+let mkequiv : equiv -> int -> int -> bool = fun e i j ->
   IUF.equivalent i j e
 
 let nextstep (n,tr : net) (m : marquage) 
@@ -72,11 +70,11 @@ let nextstep (n,tr : net) (m : marquage)
 		(fun ((e,p),_) -> 
 		  IMap.equal 
 		    SISet.equal p part' && 
-		    eqstates e (mkequiv eq') m)
+		    eqstates (mkequiv e) (mkequiv eq') m)
 		acc
 	      then acc
 	      else 
-		(((mkequiv eq'),part'),ISet.union act' (targ part'))
+		((eq',part'),ISet.union act' (targ part'))
 		::acc
 	    else acc
 	  in
@@ -130,7 +128,7 @@ let apply (m1 : readstate) (eq,t1 : trans)
     | Close ((i1,i2),j) ->
       let k1 = IMap.find i1 m1 
       and k2 = IMap.find i2 m1 in
-      if eq k1 k2 
+      if mkequiv eq k1 k2 
       then 
 	MSet.singleton 
 	  (IMap.add j k1 (IMap.remove i1 (IMap.remove i2 m1)))
@@ -215,7 +213,7 @@ let ( >> )
 	     if IMap.mem k t1
 	     then false
 	     else
-	       eq (IMap.find j m2) k))
+	       mkequiv eq (IMap.find j m2) k))
        t2eps)
     &&
       (IMap.for_all

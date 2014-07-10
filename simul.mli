@@ -1,5 +1,5 @@
 type tranche = Tools.SISet.t Tools.IMap.t
-type equiv = int -> int -> bool
+type equiv = Tools.IUF.state
 type ('a,'b) lts = 
   'a * ('b * Petri.marquage) list Tools.ISMap.t * ('a -> bool)
 type trans = equiv * tranche
