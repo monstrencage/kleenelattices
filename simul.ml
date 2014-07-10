@@ -276,8 +276,7 @@ let fninf (fn1 : marquage -> bool) (pet2 : Petri.net)
       m1
   else true
 
-exception ContreExemple of 
-    ((int list * int Tools.IMap.t list) * int) list
+exception ContreExemple of trans list
 
 let simul pet1 pet2 =
   let module LMMap = 
@@ -291,33 +290,28 @@ let simul pet1 pet2 =
 	end)
   in
   let (init,lts,fn1) = getlts pet1 in
-  let rec aux acc k (mk,ms) =
+  let rec aux trlst acc k (mk,ms) =
     (*let mk,ms = ilst2set mark, mlst2set m1 in*)
     if LMMap.mem (mk,ms) acc
-    then true
+    then ()
     else 
       let acc' = LMMap.add (mk,ms) k acc in
       if fninf fn1 pet2 (mk,ms)
       then
 	let next =  get_def [] ISMap.find mk lts in
 	if next = []
-	then true
+	then ()
 	else
-	  List.fold_left
-	    (fun b ((eq,t1),mark') -> 
-	      aux acc' (k+1) (mark',simulstep pet2 (eq,t1) ms))
-	    true
+	  List.iter
+	    (fun ((eq,t1),mark') -> 
+	      aux ((eq,t1)::trlst) acc' (k+1) (mark',simulstep pet2 (eq,t1) ms))
 	    next
       else raise 
-	(ContreExemple 
-	   (List.map 
-	      (fun ((s,ms),i) -> 
-		(ISet.elements s,MSet.elements ms),i) 
-	      (LMMap.bindings acc)))
+	(ContreExemple trlst)
   in
   try
-    (aux LMMap.empty 0 (ISet.singleton 0,MSet.singleton (IMap.singleton 0 0)))
-  with ContreExemple _ -> false
+    (aux [] LMMap.empty 0 (ISet.singleton 0,MSet.singleton (IMap.singleton 0 0))); None
+  with ContreExemple x -> Some x
 
 
 
