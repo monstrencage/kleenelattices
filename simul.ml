@@ -97,7 +97,7 @@ let getlts (pet : Petri.net) : (marquage,equiv * tranche) lts =
 	  (List.fold_left 
 	     (fun (lts,todo) ((r,tr),m') -> 
 	       add_set m ((r,tr),m') lts,
-	       if ISSet.mem m' st then todo else todo)
+	       if ISSet.mem m' st then todo else m'::todo)
 	     (lts,todo)
 	     (nextstep pet m))
 	in
