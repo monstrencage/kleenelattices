@@ -10,8 +10,8 @@ let inf se1 se2 e1 e2 =
   match simul (trad e1) (trad e2) with
   | None -> (true,Printf.sprintf "\n%s <= %s : true" se1 se2)
   | Some l -> 
-    let w = PrintTrans.trad (PrintTrans.canon l) 
-    in (false,Printf.sprintf "\n%s <= %s : %s (false)" se1 se2 (PrintTrans.print_expr w))
+    let w = PrintTrans.print_trace l
+    in (false,Printf.sprintf "\n%s <= %s : %s (false)" se1 se2 w)
 
 let solve (c,e1,e2) =
   let not (a,b) = (not a,b)

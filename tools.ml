@@ -96,3 +96,8 @@ let eqstates eq1 eq2 m =
 	(fun j -> eq1 i j = eq2 i j)
 	m)
     m
+
+
+let img t = IMap.fold (fun _ t -> (SISet.fold (fun (_,q) -> ISet.add q) t)) t ISet.empty
+
+let dom t = IMap.fold (fun i _ -> ISet.add i) t ISet.empty

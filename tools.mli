@@ -130,3 +130,6 @@ end
 
 val eqstates : (int -> int -> bool) -> (int -> int -> bool) -> 
   ISet.t -> bool
+
+val img : SISet.t IMap.t -> ISet.t
+val dom : 'a IMap.t -> ISet.t
