@@ -1,13 +1,6 @@
 open Expr
 open Tools
 
-let get_file filename =
-  let ch = open_in filename in
-  Parser.exp Lexer.token (Lexing.from_channel ch)
-
-let get_string s = 
-  Parser.exp Lexer.token (Lexing.from_string s)
-
 type lettre = string option
 
 type place = int

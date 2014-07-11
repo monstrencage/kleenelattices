@@ -1,13 +1,13 @@
+(** Converting a series of transitions into a word, and printing it. *)
 
-module TrSet : Set.S with
-  type elt = int * string * int
+(** Type of words. *)
+type word
 
-type word = int * TrSet.t * int
+(** Converts a list of transitions into a word. *)
+val build_word :  Tools.trans list -> word
 
-val build_word :  Simul.trans list -> word
-
+(** Prints a word. *)
 val print_word : word -> string
 
-val get_expression : word -> string Expr.expr
-
-val print_trace : Simul.trans list -> string
+(** Converts a word into an expression. *)
+val get_expr : word -> string Expr.expr

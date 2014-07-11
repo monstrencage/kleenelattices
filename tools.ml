@@ -101,3 +101,13 @@ let eqstates eq1 eq2 m =
 let img t = IMap.fold (fun _ t -> (SISet.fold (fun (_,q) -> ISet.add q) t)) t ISet.empty
 
 let dom t = IMap.fold (fun i _ -> ISet.add i) t ISet.empty
+
+type marquage = ISet.t
+type tranche = SISet.t IMap.t
+type equiv = IUF.state
+type ('a,'b) lts = 
+  'a * ('b * marquage) list ISMap.t * ('a -> bool)
+type readstate = int IMap.t
+type readstateset = MSet.t
+type trans = equiv * tranche
+

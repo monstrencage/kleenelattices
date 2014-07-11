@@ -1,16 +1,14 @@
 open Tools
 open Expr
+open Exprtools
 open Petri
 open Simul
-
-let get_eq s =
-  Parser.equation Lexer.token (Lexing.from_string s)
 
 let inf se1 se2 e1 e2 =
   match simul (trad e1) (trad e2) with
   | None -> (true,Printf.sprintf "\n%s <= %s : true" se1 se2)
   | Some l -> 
-    let w = PrintTrans.print_trace l
+    let w = print_expr l
     in (false,Printf.sprintf "\n%s <= %s : %s (false)" se1 se2 w)
 
 let solve (c,e1,e2) =

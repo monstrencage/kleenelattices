@@ -20,7 +20,7 @@
 
 
 %type <string Expr.expr> exp
-%type <Expr.comp * string Expr.expr * string Expr.expr> equation
+%type <string Expr.eqs> equation
 %start exp
 %start equation
 

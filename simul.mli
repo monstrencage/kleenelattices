@@ -1,11 +1,12 @@
-type tranche = Tools.SISet.t Tools.IMap.t
-type equiv = Tools.IUF.state
-type ('a,'b) lts = 
-  'a * ('b * Petri.marquage) list Tools.ISMap.t * ('a -> bool)
-type trans = equiv * tranche
+(** Computes the simulation of two petri automata. *)
 
+(** Computes a labeled transition system from a petri automaton. *)
 val getlts :
   Petri.net ->
-  (Petri.marquage,(equiv * tranche)) lts
-    
-val simul : Petri.net -> Petri.net -> trans list option
+  (Tools.marquage,(Tools.equiv * Tools.tranche)) Tools.lts
+
+(** Tries to find a series of transitions of the first net
+    such that the associated word is not recognised by the
+    second net. In case of success, returns said series of transition.
+    Otherwise returns [None]. *)
+val simul : Petri.net -> Petri.net -> string Expr.expr option

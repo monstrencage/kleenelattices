@@ -1,17 +1,5 @@
 open Tools
-open Expr
-open Simul
-
-
-let rec print_expr = function
-  | `Var x -> x
-  | `Inter (e,f) -> Printf.sprintf "(%s ^ %s)" (print_expr e) (print_expr f)
-  | `Conc (e,f) ->  Printf.sprintf "%s.%s" (print_expr e) (print_expr f)
-  | `Union (e,f) ->  Printf.sprintf "(%s U %s)" (print_expr e) (print_expr f)
-  | `Zero -> "ø"
-  | `Un -> "ε"
-  | `Star e -> Printf.sprintf "(%s)+" (print_expr e)
-  | `Conv e -> Printf.sprintf "(%s)~" (print_expr e)
+open Exprtools
 
 
 module TrSet = Set.Make(struct
@@ -159,7 +147,7 @@ let print_reach r =
     r
     ""
 
-let rec get_expression (i,w,o) =
+let rec get_expr (i,w,o) =
   ((*Printf.printf "%d -> %d\n%s\n" i o (print_word (i,w,o))*));
   let e = 
     let r = reachability (i,w,o) in
@@ -168,7 +156,7 @@ let rec get_expression (i,w,o) =
     else
       match succ i w with
       | [] -> `Zero
-      | [(x,a,y)] -> conc (`Var a,get_expression (y,w,o))
+      | [(x,a,y)] -> conc (`Var a,get_expr (y,w,o))
       | (x,a,y)::lst ->
 	let joints =
 	  ISet.filter
@@ -182,7 +170,7 @@ let rec get_expression (i,w,o) =
 	if not (ISet.is_empty joints)
 	then 
 	  (let ij = ISet.choose joints in
-	   conc (get_expression (i,w,ij),get_expression (ij,w,o)))
+	   conc (get_expr (i,w,ij),get_expr (ij,w,o)))
 	else 
 	  let (now,later) =
 	    List.partition
@@ -196,11 +184,11 @@ let rec get_expression (i,w,o) =
 	   if (now <> [])
 	   then
 	     (par
-		(get_expression 
+		(get_expr 
 		   (i,TrSet.filter 
 		     (fun tr -> not (List.mem tr now)) w,
 		    o),
-		 get_expression 
+		 get_expr 
 		   (i,TrSet.filter 
 		     (fun tr -> not (List.mem tr later)) w,
 		    o)))
@@ -209,14 +197,3 @@ let rec get_expression (i,w,o) =
 		`Zero later))
   in
   e
-
-
-let get_expr (i,w,o) =
-  (*Printf.printf "get_expr\n";*)
-  get_expression (i,w,o)
-
-let print_trace l = 
-  let w = (build_word (List.rev l)) in
-  Printf.sprintf "%s"
-    (print_expr (get_expr w))
-    (*print_word w*)

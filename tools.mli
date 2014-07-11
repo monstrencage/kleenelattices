@@ -1,123 +1,39 @@
-val sort : 'a list -> 'a list
-val ( <! ) : 'a list -> 'a list -> bool
-val rm : 'a list -> 'a list -> 'a list
-module Int : sig type t = int val compare : 'a -> 'a -> int end
+(** Tools to be used in the project. *)
 
-module IMap :
-  sig
-    type key = Int.t
-    type 'a t = 'a Map.Make(Int).t
-    val empty : 'a t
-    val is_empty : 'a t -> bool
-    val mem : key -> 'a t -> bool
-    val add : key -> 'a -> 'a t -> 'a t
-    val singleton : key -> 'a -> 'a t
-    val remove : key -> 'a t -> 'a t
-    val merge :
-      (key -> 'a option -> 'b option -> 'c option) -> 'a t -> 'b t -> 'c t
-    val compare : ('a -> 'a -> int) -> 'a t -> 'a t -> int
-    val equal : ('a -> 'a -> bool) -> 'a t -> 'a t -> bool
-    val iter : (key -> 'a -> unit) -> 'a t -> unit
-    val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
-    val for_all : (key -> 'a -> bool) -> 'a t -> bool
-    val exists : (key -> 'a -> bool) -> 'a t -> bool
-    val filter : (key -> 'a -> bool) -> 'a t -> 'a t
-    val partition : (key -> 'a -> bool) -> 'a t -> 'a t * 'a t
-    val cardinal : 'a t -> int
-    val bindings : 'a t -> (key * 'a) list
-    val min_binding : 'a t -> key * 'a
-    val max_binding : 'a t -> key * 'a
-    val choose : 'a t -> key * 'a
-    val split : key -> 'a t -> 'a t * 'a option * 'a t
-    val find : key -> 'a t -> 'a
-    val map : ('a -> 'b) -> 'a t -> 'b t
-    val mapi : (key -> 'a -> 'b) -> 'a t -> 'b t
-  end
-module ISet :
-  sig
-    type elt = Int.t
-    type t = Set.Make(Int).t
-    val empty : t
-    val is_empty : t -> bool
-    val mem : elt -> t -> bool
-    val add : elt -> t -> t
-    val singleton : elt -> t
-    val remove : elt -> t -> t
-    val union : t -> t -> t
-    val inter : t -> t -> t
-    val diff : t -> t -> t
-    val compare : t -> t -> int
-    val equal : t -> t -> bool
-    val subset : t -> t -> bool
-    val iter : (elt -> unit) -> t -> unit
-    val fold : (elt -> 'a -> 'a) -> t -> 'a -> 'a
-    val for_all : (elt -> bool) -> t -> bool
-    val exists : (elt -> bool) -> t -> bool
-    val filter : (elt -> bool) -> t -> t
-    val partition : (elt -> bool) -> t -> t * t
-    val cardinal : t -> int
-    val elements : t -> elt list
-    val min_elt : t -> elt
-    val max_elt : t -> elt
-    val choose : t -> elt
-    val split : elt -> t -> t * bool * t
-    val find : elt -> t -> elt
-  end
-module MSet :
-  sig
-    type elt = int IMap.t
-    type t
-    val empty : t
-    val is_empty : t -> bool
-    val mem : elt -> t -> bool
-    val add : elt -> t -> t
-    val singleton : elt -> t
-    val remove : elt -> t -> t
-    val union : t -> t -> t
-    val inter : t -> t -> t
-    val diff : t -> t -> t
-    val compare : t -> t -> int
-    val equal : t -> t -> bool
-    val subset : t -> t -> bool
-    val iter : (elt -> unit) -> t -> unit
-    val fold : (elt -> 'a -> 'a) -> t -> 'a -> 'a
-    val for_all : (elt -> bool) -> t -> bool
-    val exists : (elt -> bool) -> t -> bool
-    val filter : (elt -> bool) -> t -> t
-    val partition : (elt -> bool) -> t -> t * t
-    val cardinal : t -> int
-    val elements : t -> elt list
-    val min_elt : t -> elt
-    val max_elt : t -> elt
-    val choose : t -> elt
-    val split : elt -> t -> t * bool * t
-    val find : elt -> t -> elt
-  end
+(** Implementation of maps with integer keys. *)
+module IMap : Map.S with type key = int
 
+(** Implementation of sets of integers. *)
+module ISet : Set.S with type elt = int
 
+(** Implementation of sets of maps with integer keys. *)
+module MSet : Set.S with type elt = int IMap.t
+
+(** Implementation of sets of sets of integers. *)
 module ISSet : Set.S with type elt = ISet.t
 
+(** Implementation of map with sets of integers as keys. *)
 module ISMap : Map.S with type key = ISet.t
 
-val add_set : ISMap.key -> 'a -> 'a list ISMap.t -> 'a list ISMap.t
-val get_def : 'a -> ('b -> 'c -> 'a) -> 'b -> 'c -> 'a
-val bind : ('a -> 'b list) -> 'a list -> 'b list
-
-val ilst2set : ISet.elt list -> ISet.t
-val mlst2set : MSet.elt list -> MSet.t
-
-
-module StrInt : sig
-  type t = string * int
-  val compare : t -> t -> int
-end
-
+(** Implementation of sets of pairs of a sting and an integer. *)
 module SISet : Set.S with type elt = string * int
 
-val support : 'a IMap.t -> ISet.t
+(** [add_set s i m] will return a map where [s] is associated to a list
+    containing all the previous bindings of [s] in [m] with the addition 
+    of [i]. All the other bindings of [m] are unchanged. *)
+val add_set : ISet.t -> 'a -> 'a list ISMap.t -> 'a list ISMap.t
 
-module Descriptor : UnionFind.Desc
+(** [get_def default f a b] will try and compute [f a b], 
+    and will return [default] if the exception [Not_found] is raised. *)
+val get_def : 'a -> ('b -> 'c -> 'a) -> 'b -> 'c -> 'a
 
+(** [bind f [a_1;a_2;...;a_n]] returns the list [(f a_1)@(f a_2)@...@(f a_n)].*)
+val bind : ('a -> 'b list) -> 'a list -> 'b list
+
+(** [ilst2set l] computes to the set of integers appearing in [l].*)
+val ilst2set : int list -> ISet.t
+
+(** Union-find structure, constructed using [UnionFind]. *)
 module IUF : sig
   type item = int
   type state
@@ -128,8 +44,38 @@ module IUF : sig
   val domain : state -> item list
 end
 
+(** Tests the equality of the restriction to some finite domain of 
+    two relations over integers. *)
 val eqstates : (int -> int -> bool) -> (int -> int -> bool) -> 
   ISet.t -> bool
 
+(** [img m] computes the set of integers [j] such that there is a string [x]
+    and an index [i], such that [(x,j)] is in the binding of [i] in [m]. *)
 val img : SISet.t IMap.t -> ISet.t
+
+(** [dom m] computes the set of indexes that are bound to something in [m]. *)
 val dom : 'a IMap.t -> ISet.t
+
+(** Alias for ISet.t*)
+type marquage = ISet.t
+
+(** Maps from integers to sets of pairs of a string and an integer. *)
+type tranche = SISet.t IMap.t
+
+(** Type for equivalence relations. *)
+type equiv = IUF.state
+
+(** Type for labeled transition system with states of type ['a] 
+    and transitions of type ['b]. *)
+type ('a,'b) lts = 
+  'a * ('b * marquage) list ISMap.t * ('a -> bool)
+
+(** Alias for maps from integers to integers. *)
+type readstate = int IMap.t
+
+(** Alias for [MSet.t]. *)
+type readstateset = MSet.t
+
+(** Some type for transitions. *)
+type trans = equiv * tranche
+

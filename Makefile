@@ -72,8 +72,8 @@
 SOURCES = $(MLI) $(AUTRES) $(ML)
 
 MAIN = main.ml
-MLI = expr.mli petri.mli printPetri.mli simul.mli solve.mli tools.mli unionFind.mli printTrans.mli
-ML = unionFind.ml tools.ml petri.ml printPetri.ml simul.ml printTrans.ml solve.ml
+MLI = expr.mli exprtools.mli petri.mli printPetri.mli simul.mli solve.mli tools.mli unionFind.mli printTrans.mli
+ML = unionFind.ml exprtools.ml tools.ml petri.ml printPetri.ml printTrans.ml simul.ml solve.ml
 AUTRES =  parser.mly lexer.mll
 
 # The executable file to generate

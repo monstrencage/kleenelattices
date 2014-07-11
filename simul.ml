@@ -1,19 +1,12 @@
 open Tools
 open Petri
 
-type tranche = SISet.t IMap.t
-type equiv = IUF.state
-type ('a,'b) lts = 
-  'a * ('b * marquage) list ISMap.t * ('a -> bool)
-type readstate = int IMap.t
-type readstateset = MSet.t
-type trans = equiv * tranche
 
 exception Nope
 
 let correct_tr (m0 : marquage) ((eq,part),act: trans * marquage) 
     : bool = 
-  let m = support part 
+  let m = dom part 
   and supeq = ilst2set (IUF.domain eq) in
   ISet.subset (ISet.inter supeq m0) m && ISet.is_empty (ISet.inter supeq act)
 
@@ -231,7 +224,7 @@ let simulstep (pet2 : Petri.net) (eq,t1 : trans) (m1lst : readstateset)
     that allow for m1 to be transformed in something
     compatible with t1. *)
   let rec aux m1 (m,(tr2,tr2eps)) =
-    let trpos = (one_step (support m) pet2) in
+    let trpos = (one_step (dom m) pet2) in
     bind
       (fun t2 ->
 	try 
@@ -309,7 +302,7 @@ let simul pet1 pet2 =
   in
   try
     (aux [] LMMap.empty 0 (ISet.singleton 0,MSet.singleton (IMap.singleton 0 0))); None
-  with ContreExemple x -> Some x
+  with ContreExemple x -> Some (PrintTrans.get_expr (PrintTrans.build_word (List.rev x)))
 
 
 
