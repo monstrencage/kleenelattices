@@ -26,11 +26,11 @@ rule token = parse
   | "//"         { comment lexbuf }
   | '\n'         { NEWLINE }
   | letter+ as s { VAR s }
-  | "^*"         { STAR }
-  | "^+"         { PSTAR }
-  | '+'          { PLUS }
+  | "*"         { STAR }
+  | "+"         { PSTAR }
+  | '|'          { PLUS }
   | '.'          { DOT }
-  | "^"          { INTER } 
+  | "&"          { INTER } 
   | '('          { LPAR }
   | ')'          { RPAR }  
   | "=?="        { DUNNO }

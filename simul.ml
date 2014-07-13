@@ -317,7 +317,7 @@ let simul pet1 pet2 =
   in
   try
     (aux [] LMMap.empty 0 (ISet.singleton 0,MSet.singleton (IMap.singleton 0 0))); None
-  with ContreExemple x -> Some (PrintTrans.get_expr (PrintTrans.build_word (List.rev x)))
+  with ContreExemple x -> Some (Word.get_expr (Word.build_word (List.rev x)))
 
 
 

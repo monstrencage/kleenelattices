@@ -24,9 +24,9 @@ let get_string s =
 
 let rec print_expr = function
   | `Var x -> x
-  | `Inter (e,f) -> Printf.sprintf "(%s ^ %s)" (print_expr e) (print_expr f)
+  | `Inter (e,f) -> Printf.sprintf "(%s & %s)" (print_expr e) (print_expr f)
   | `Conc (e,f) ->  Printf.sprintf "%s.%s" (print_expr e) (print_expr f)
-  | `Union (e,f) ->  Printf.sprintf "(%s U %s)" (print_expr e) (print_expr f)
+  | `Union (e,f) ->  Printf.sprintf "(%s | %s)" (print_expr e) (print_expr f)
   | `Zero -> "ø"
   | `Un -> "ε"
   | `Star e -> Printf.sprintf "(%s)+" (print_expr e)
