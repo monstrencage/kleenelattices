@@ -27,6 +27,14 @@ type 'a expr = [
 | `Star of 'a expr
 | `Conv of 'a expr ]
 
+(** Without identity ε and ø. *)
+type 'a rklm = [
+| `Var of 'a
+| `Inter of 'a rklm * 'a rklm
+| `Conc  of 'a rklm * 'a rklm
+| `Union  of 'a rklm * 'a rklm
+| `Star of 'a rklm]
+
 (** Without iteration. *)
 type 'a rkli = [
 | `Var of 'a

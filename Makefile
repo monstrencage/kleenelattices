@@ -73,7 +73,7 @@ SOURCES = $(MLI) $(AUTRES) $(ML)
 
 MAIN = main.ml
 MLI = expr.mli exprtools.mli petri.mli printPetri.mli simul.mli solve.mli tools.mli unionFind.mli word.mli
-ML = unionFind.ml exprtools.ml tools.ml petri.ml printPetri.ml word.ml simul.ml solve.ml
+ML = unionFind.ml exprtools.ml tools.ml petri.ml printPetri.ml word.ml simul.ml lts.ml solve.ml
 AUTRES =  parser.mly lexer.mll
 
 # The executable file to generate
@@ -242,7 +242,7 @@ clean::
 
 .depend.input: Makefile
 	@echo -n '--Checking Ocaml input files: '
-	@(ls $(SMLIY) $(SMLIY:.ml=.mli) 2>/dev/null || true) \
+	@(ls $(SMLIY) $(MAIN) $(SMLIY:.ml=.mli) 2>/dev/null || true) \
 	     >  .depend.new
 	@diff .depend.new .depend.input 2>/dev/null 1>/dev/null && \
 	    (echo 'unchanged'; rm -f .depend.new) || \
@@ -250,8 +250,8 @@ clean::
 
 depend: .depend
 
-.depend:: $(SMLIYL) .depend.input
+.depend:: $(SMLIYL) $(MAIN) .depend.input
 	@echo '--Re-building dependencies'
-	$(CAMLDEP) $(SMLIY) $(SMLIY:.ml=.mli) > .depend
+	$(CAMLDEP) $(MAIN) $(SMLIY) $(SMLIY:.ml=.mli) > .depend
 
 include .depend

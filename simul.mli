@@ -25,3 +25,9 @@ val getlts :
     second net. In case of success, returns said series of transition.
     Otherwise returns [None]. *)
 val simul : Petri.net -> Petri.net -> string Expr.expr option
+
+(** Tries to find a series of transitions of the first net
+    such that the associated word is not recognised by the
+    second net. In case of success, returns said series of transition.
+    Otherwise returns [None]. *)
+val simul2 : Petri.net -> Petri.net -> string Expr.expr option

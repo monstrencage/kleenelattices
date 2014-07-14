@@ -17,16 +17,15 @@ open Tools
 open Expr
 open Exprtools
 open Petri
-open Simul
 
-let inf se1 se2 e1 e2 =
-  match simul (trad e1) (trad e2) with
+let inf simul se1 se2 e1 e2 =
+  match simul e1 e2 with
   | None -> (true,Printf.sprintf "\n%s <= %s : true" se1 se2)
   | Some l -> 
     let w = print_expr l
     in (false,Printf.sprintf "\n%s <= %s : %s (false)" se1 se2 w)
 
-let solve (c,e1,e2) =
+let solve inf (c,e1,e2) =
   let not (a,b) = (not a,b)
   and ( && ) (a,b) (c,d) = (a && c,b^d)
   and ( || ) (a,b) (c,d) = (a || c,b^d)  in
@@ -39,14 +38,15 @@ let solve (c,e1,e2) =
   | `Neq ->  (not (inf "e2" "e1" e2 e1)) || (not (inf "e1" "e2" e1 e2)) 
   | `Eq -> inf "e1" "e2"  e1 e2 && (inf "e2" "e1"  e2 e1)
 
-let solve_file filename =
+let solve_file inf filename =
   let chin = open_in filename 
   and chout = open_out (filename^".res") in
   let rec aux () =
     try 
       let s = input_line chin in
       try
-	let _,b = solve (get_eq s) in
+	Printf.printf "Computing %s\n" s;
+	let _,b = solve inf (get_eq s) in
 	Printf.fprintf chout "%s : %s\n\n" s b;
 	aux ()
       with Parsing.Parse_error -> aux ()
@@ -55,3 +55,20 @@ let solve_file filename =
   in
   aux ()
 
+let inf1 = inf (fun e f -> Simul.simul (trad e) (trad f))
+
+let inf2 = inf (fun e f -> Simul.simul2 (trad e) (trad f))
+
+let inf3 = inf Lts.simul
+
+let solve1 = solve inf1
+
+let solve_file1 = solve_file inf1
+
+let solve2 = solve inf2
+
+let solve_file2 = solve_file inf2
+
+let solve3 = solve inf3
+
+let solve_file3 = solve_file inf3

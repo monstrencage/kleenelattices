@@ -19,4 +19,4 @@ let _ =
     Arg.parse [] (fun s -> f:=s) "";
     !f
   in
-  Solve.solve_file file
+  Solve.solve_file3 file

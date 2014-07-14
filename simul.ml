@@ -282,7 +282,9 @@ let fninf (fn1 : marquage -> bool) (pet2 : Petri.net)
       m1
   else true
 
-exception ContreExemple of trans list
+exception ContreExemple1 of trans list
+
+let mkrn e i = IUF.representative i e
 
 let simul pet1 pet2 =
   let module LMMap = 
@@ -313,11 +315,73 @@ let simul pet1 pet2 =
 	      aux ((eq,t1)::trlst) acc' (k+1) (mark',simulstep pet2 (eq,t1) ms))
 	    next
       else raise 
-	(ContreExemple trlst)
+	(ContreExemple1 trlst)
   in
   try
     (aux [] LMMap.empty 0 (ISet.singleton 0,MSet.singleton (IMap.singleton 0 0))); None
-  with ContreExemple x -> Some (Word.get_expr (Word.build_word (List.rev x)))
+  with ContreExemple1 x -> Some (Word.get_expr (Word.build_word mkrn (List.rev x)))
+
+
+exception ContreExemple2 of string Expr.expr
+
+let ltsfninf fn1 fn2 (mk,ms) =
+  if fn1 mk
+  then MSet.exists (fun m -> fn2 (dom m)) ms
+  else true
+
+let read lts ms w =
+  MSet.fold
+    (fun m ms ->
+      let mk = dom m in
+      let next =  get_def [] ISMap.find mk lts in
+      List.fold_left
+	(fun acc (trans,_) ->
+	  MSet.union acc (Word.read mkrn w m trans))
+	ms
+	next)
+    ms
+    MSet.empty
+
+let simul2 pet1 pet2 =
+  let module LMSet = 
+	Set.Make(struct 
+	  type t = ISet.t * MSet.t
+	  let compare (i,m) (j,n) =
+	    let t = ISet.compare i j in
+	    if t = 0
+	    then MSet.compare m n
+	    else t
+	end)
+  in
+  let (i1,l1,fn1) = getlts pet1 
+  and (i2,l2,fn2) = getlts pet1 in
+  let rec aux w acc (mk,ms) =
+    if LMSet.mem (mk,ms) acc
+    then ()
+    else 
+      let acc' = LMSet.add (mk,ms) acc in
+      if ltsfninf fn1 fn2 (mk,ms)
+      then
+	let next =  get_def [] ISMap.find mk l1 in
+	if next = []
+	then ()
+	else
+	  List.iter
+	    (fun ((eq,t1),mark') -> 
+	      let w' = Word.evolve_word mkrn w (eq,t1) in
+	      let ms' = read l2 ms w' in
+	      aux w' acc' (mark',ms'))
+	    next
+      else raise 
+	(ContreExemple2 (Word.get_expr (Word.close w)))
+  in
+  try
+    (aux 
+       Word.init
+       LMSet.empty 
+       (ISet.singleton 0,MSet.singleton (IMap.singleton 0 0))); 
+    None
+  with ContreExemple2 x -> Some x
 
 
 
