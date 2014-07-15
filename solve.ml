@@ -23,31 +23,42 @@ let inf simul se1 se2 e1 e2 =
   | None -> (true,Printf.sprintf "\n%s <= %s : true" se1 se2)
   | Some l -> 
     let w = print_expr l
-    in (false,Printf.sprintf "\n%s <= %s : %s (false)" se1 se2 w)
+    in (false,Printf.sprintf "\n%s <= %s : false (%s)" se1 se2 w)
 
-let solve inf (c,e1,e2) =
+let solve bld inf (c,e1,e2) =
+  let e1,e2 = (bld e1,bld e2) in
   let not (a,b) = (not a,b)
   and ( && ) (a,b) (c,d) = (a && c,b^d)
-  and ( || ) (a,b) (c,d) = (a || c,b^d)  in
+  in
   match c with
   | `Geq -> inf "e2" "e1" e2 e1
   | `Leq -> inf "e1" "e2" e1 e2
-  | `Gt -> inf "e2" "e1"  e2 e1 && (not (inf "e1" "e2" e1 e2))
+  | `Gt -> (not (inf "e1" "e2" e1 e2)) && inf "e2" "e1"  e2 e1
   | `Lt -> inf "e1" "e2" e1 e2 && (not (inf "e2" "e1"  e2 e1))
-  | `Incomp -> (not (inf "e2" "e1" e2 e1)) && (not (inf "e1" "e2" e1 e2))
-  | `Neq ->  (not (inf "e2" "e1" e2 e1)) || (not (inf "e1" "e2" e1 e2)) 
+  | `Incomp -> 
+    (not (inf "e1" "e2" e1 e2)) && 
+      (not (inf "e2" "e1" e2 e1)) 
+  | `Neq ->  
+    let a,b = (not (inf "e1" "e2" e1 e2)) 
+    in 
+    if a 
+    then (a,b) 
+    else 
+      let c,d = (not (inf "e2" "e1" e2 e1))
+      in (c,b^d)
   | `Eq -> inf "e1" "e2"  e1 e2 && (inf "e2" "e1"  e2 e1)
 
-let solve_file inf filename =
+let solve_file bld inf filename fdest =
   let chin = open_in filename 
-  and chout = open_out (filename^".res") in
+  and chout = open_out (fdest^".res") in
   let rec aux () =
     try 
       let s = input_line chin in
       try
 	Printf.printf "Computing %s\n" s;
-	let _,b = solve inf (get_eq s) in
-	Printf.fprintf chout "%s : %s\n\n" s b;
+	let res,b = solve (bld stdout) inf (get_eq s) in
+	Printf.fprintf chout "%s --------- %s\n%s\n\n" 
+	  s (if res then "OK" else "Incorrect") b;
 	aux ()
       with Parsing.Parse_error -> aux ()
     with 
@@ -55,20 +66,18 @@ let solve_file inf filename =
   in
   aux ()
 
-let inf1 = inf (fun e f -> Simul.simul (trad e) (trad f))
+let inf1 = inf Simul.simul
 
-let inf2 = inf (fun e f -> Simul.simul2 (trad e) (trad f))
+let inf2 = inf Lts.simul
 
-let inf3 = inf Lts.simul
+let solve1 = solve trad inf1
 
-let solve1 = solve inf1
+let solve_file1 = solve_file (fun _ -> trad) inf1
 
-let solve_file1 = solve_file inf1
+let solve2 = solve (fun e -> Simul.getlts (trad e)) inf2
 
-let solve2 = solve inf2
+let solve_file2 = solve_file (fun _ e -> Simul.getlts (trad e)) inf2
 
-let solve_file2 = solve_file inf2
+let solve3 = solve (Lts.trad stdout) inf2
 
-let solve3 = solve inf3
-
-let solve_file3 = solve_file inf3
+let solve_file3 = solve_file Lts.trad inf2

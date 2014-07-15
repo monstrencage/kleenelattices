@@ -14,9 +14,19 @@
    with this program; if not, write to the Free Software Foundation, Inc.,
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*)
 let _ =
-  let file = 
-    let f = ref "" in
-    Arg.parse [] (fun s -> f:=s) "";
-    !f
+  let file,solve,fdest = 
+    let f = ref "" 
+    and solve = ref Solve.solve_file1 
+    and fdest = ref "" in
+    Arg.parse 
+      ["--interm",Arg.Unit(fun () -> solve:=Solve.solve_file2),
+       "Uses petri then lts.";
+       "--new",Arg.Unit(fun () -> solve:=Solve.solve_file3),
+       "Uses lts directly.";
+       "-o",Arg.Set_string fdest,
+       "Set the destination name"
+      ] 
+      (fun s -> f:=s) "";
+    !f,!solve,(if !fdest = "" then !f else !fdest)
   in
-  Solve.solve_file3 file
+  solve file fdest

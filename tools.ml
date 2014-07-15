@@ -120,9 +120,54 @@ let dom t = IMap.fold (fun i _ -> ISet.add i) t ISet.empty
 type marquage = ISet.t
 type tranche = SISet.t IMap.t
 type equiv = IUF.state
-type ('a,'b) lts = 
-  'a * ('b * marquage) list ISMap.t * ('a -> bool)
+type 'b lts = 
+  int * ('b * marquage) list ISMap.t * ISSet.t
 type readstate = int IMap.t
 type readstateset = MSet.t
-type trans = equiv * tranche
+type trans = readstate * tranche
 
+let printimap f2 m =
+  Printf.sprintf "(%s)"
+    (String.concat ","
+       (List.map (fun (i,j) -> Printf.sprintf "%d -> %s" i (f2 j)) 
+	  (IMap.bindings m)))
+
+let printiset m =
+Printf.sprintf "{%s}"
+  (String.concat ","
+     (List.map string_of_int (ISet.elements m)))
+let printisset m =
+Printf.sprintf "{%s}"
+  (String.concat ","
+     (List.map printiset (ISSet.elements m)))
+
+let printlist f l =
+Printf.sprintf "[%s]"
+  (String.concat ";"
+     (List.map f l))
+
+let printsiset m =
+Printf.sprintf "{%s}"
+  (String.concat ","
+     (List.map (fun (s,i) -> Printf.sprintf "(%s,%d)" s i) (SISet.elements m)))
+
+
+let printismap f2 m =
+  Printf.sprintf "(%s)"
+    (String.concat ",\n"
+       (List.map (fun (i,j) -> Printf.sprintf "%s -> %s" (printiset i) (f2 j)) 
+	  (ISMap.bindings m)))
+
+let printtrans ((e,l),m) =
+  Printf.sprintf 
+    "(%s|%s|%s)" 
+    (printiset m)
+    (printimap string_of_int e)
+    (printimap printsiset l)
+
+let printlts (i,t,o) =
+  Printf.sprintf "init : %d\nTrans:\n%s\nfinals:%s\n" i
+    (printismap  
+       (printlist printtrans)
+       t)
+    (printisset o)

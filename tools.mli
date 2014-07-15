@@ -82,8 +82,8 @@ type equiv = IUF.state
 
 (** Type for labeled transition system with states of type ['a] 
     and transitions of type ['b]. *)
-type ('a,'b) lts = 
-  'a * ('b * marquage) list ISMap.t * ('a -> bool)
+type 'b lts = 
+  int * ('b * marquage) list ISMap.t * ISSet.t
 
 (** Alias for maps from integers to integers. *)
 type readstate = int IMap.t
@@ -92,5 +92,6 @@ type readstate = int IMap.t
 type readstateset = MSet.t
 
 (** Some type for transitions. *)
-type trans = equiv * tranche
+type trans = readstate * tranche
 
+val printlts : trans lts -> string

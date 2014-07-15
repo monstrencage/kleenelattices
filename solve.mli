@@ -24,7 +24,7 @@ val solve1 :
 
 (** [solve_file filename] will process all equations in [filename],
     and write an output in [filename.res]. *)
-val solve_file1 : string -> unit
+val solve_file1 : string -> string -> unit
 
 (** Given an equation, returns a boolean corresponding to
     the truth of the equation and a string containg a message
@@ -35,7 +35,7 @@ val solve2 :
 
 (** [solve_file filename] will process all equations in [filename],
     and write an output in [filename.res]. *)
-val solve_file2 : string -> unit
+val solve_file2 : string -> string -> unit
 
 (** Given an equation, returns a boolean corresponding to
     the truth of the equation and a string containg a message
@@ -46,4 +46,4 @@ val solve3 :
 
 (** [solve_file filename] will process all equations in [filename],
     and write an output in [filename.res]. *)
-val solve_file3 : string -> unit
+val solve_file3 : string -> string -> unit

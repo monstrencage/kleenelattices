@@ -19,14 +19,14 @@ open Petri
 
 exception Nope
 
-let correct_tr (m0 : marquage) ((eq,part),act: trans * marquage) 
+let correct_tr (m0 : marquage) ((eq,part),act: (equiv*tranche) * marquage) 
     : bool = 
   let m = dom part 
   and supeq = ilst2set (IUF.domain eq) in
   ISet.subset (ISet.inter supeq m0) m && ISet.is_empty (ISet.inter supeq act)
 
-let push (m : marquage) ((eq,part),actif : trans * marquage) 
-    : transition -> trans * marquage = function
+let push (m : marquage) ((eq,part),actif : (equiv*tranche) * marquage) 
+    : transition -> (equiv*tranche) * marquage = function
   | Smpl (p,Some x,q) -> 
     ((eq,
       ISet.fold 
@@ -55,19 +55,27 @@ let targ (m : tranche) : marquage=
   IMap.fold 
     (fun _ -> SISet.fold (fun (_,j) -> ISet.add j)) m ISet.empty
 
-let mkequiv : equiv -> int -> int -> bool = fun e i j ->
-  IUF.equivalent i j e
+let mkequiv : readstate -> int -> int -> bool = fun e i j ->
+  try IMap.find i e = IMap.find j e
+  with Not_found -> i = j
 
 let nextstep (n,tr : net) (m : marquage) 
     : (trans * marquage) list=
-  let rec aux acc eq part actif =
+  let eq2map e =
+    ISet.fold
+      (fun i ->
+	IMap.add i (IUF.representative i e))
+      m
+      IMap.empty
+  in
+  let rec aux (acc : (trans * marquage) list) eq part actif =
     let trans = 
       List.map 
 	(push m ((eq,part),actif))
 	(one_step actif (n,tr))
     in
     List.fold_left
-      (fun acc ((eq',part'),act') -> 
+      (fun (acc : (trans * marquage) list) ((eq',part'),act') -> 
 	if act' = actif
 	then acc 
 	else  
@@ -78,11 +86,11 @@ let nextstep (n,tr : net) (m : marquage)
 		(fun ((e,p),_) -> 
 		  IMap.equal 
 		    SISet.equal p part' && 
-		    eqstates (mkequiv e) (mkequiv eq') m)
+		    IMap.equal ( = ) (eq2map eq') e)
 		acc
 	      then acc
 	      else 
-		((eq',part'),ISet.union act' (targ part'))
+		((eq2map eq',part'),ISet.union act' (targ part'))
 		::acc
 	    else acc
 	  in
@@ -93,7 +101,7 @@ let nextstep (n,tr : net) (m : marquage)
   aux [] IUF.initial IMap.empty m
 
 
-let getlts (pet : Petri.net) : (marquage,equiv * tranche) lts =
+let getlts (pet : Petri.net) : trans lts =
   let rec aux states lts = function
     | [] -> states,lts
     | m::todo ->
@@ -113,7 +121,7 @@ let getlts (pet : Petri.net) : (marquage,equiv * tranche) lts =
   in
   let (s,lts) = aux ISSet.empty ISMap.empty [ISet.singleton 0] in
   let fnst = ISSet.filter (fn pet) s in
-  (ISet.singleton 0,lts,(fun m -> ISSet.mem m fnst))
+  (0,lts,fnst)
 
 exception Echec
 
@@ -284,7 +292,7 @@ let fninf (fn1 : marquage -> bool) (pet2 : Petri.net)
 
 exception ContreExemple1 of trans list
 
-let mkrn e i = IUF.representative i e
+let mkrn e i = try IMap.find i e with Not_found -> i
 
 let simul pet1 pet2 =
   let module LMMap = 
@@ -304,7 +312,7 @@ let simul pet1 pet2 =
     then ()
     else 
       let acc' = LMMap.add (mk,ms) k acc in
-      if fninf fn1 pet2 (mk,ms)
+      if fninf (fun m -> ISSet.mem m fn1) pet2 (mk,ms)
       then
 	let next =  get_def [] ISMap.find mk lts in
 	if next = []
@@ -322,6 +330,7 @@ let simul pet1 pet2 =
   with ContreExemple1 x -> Some (Word.get_expr (Word.build_word mkrn (List.rev x)))
 
 
+(*
 exception ContreExemple2 of string Expr.expr
 
 let ltsfninf fn1 fn2 (mk,ms) =
@@ -382,6 +391,6 @@ let simul2 pet1 pet2 =
        (ISet.singleton 0,MSet.singleton (IMap.singleton 0 0))); 
     None
   with ContreExemple2 x -> Some x
-
+*)
 
 

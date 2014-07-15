@@ -26,7 +26,7 @@ type word = int * TrSet.t * int
 
 type partword = int * TrSet.t * int IMap.t
 
-let init = (0,TrSet.empty,IMap.singleton 0 0)
+let init i = (0,TrSet.empty,IMap.singleton i 0)
 
 let read mkrn (i0,w,f) m1 (eq,tr) =
   let rn = mkrn eq in

@@ -1,6 +1,6 @@
 open Tools
 
-type lts = int * (((readstate * tranche) * ISet.t) list) ISMap.t * ISSet.t
+type lts = (*int * (((readstate * tranche) * ISet.t) list) ISMap.t * ISSet.t*) (readstate * tranche) Tools.lts
 
 let mergeint _ i j =
   match (i,j) with 
@@ -149,6 +149,41 @@ let inter (i1,t1,o1 as l1 : lts) (i2,t2,o2 as l2 : lts) : lts =
   let ti = ISMap.singleton (ISet.singleton i) ciblei in
   let t1' = ISMap.remove (ISet.singleton i1) t1
   and t2' = ISMap.remove (ISet.singleton i2) t2 in
+  let to1 = 
+    ISSet.fold
+      (fun o1 ->
+	ISMap.fold
+	  (fun m2 t2 ->
+	    let o1m2 =
+	      List.fold_left
+		(fun acc ((e,t),m) ->
+		  ((e,t),ISet.union o1 m)::acc)
+		[]
+		t2
+	    in
+	    ISMap.add (ISet.union o1 m2) o1m2)
+	  t2'
+      )
+      o1
+      ISMap.empty
+  and to2 = 
+    ISSet.fold
+      (fun o2 ->
+	ISMap.fold
+	  (fun m1 t1 ->
+	    let o2m1 =
+	      List.fold_left
+		(fun acc ((e,t),m) ->
+		  ((e,t),ISet.union o2 m)::acc)
+		[]
+		t1
+	    in
+	    ISMap.add (ISet.union o2 m1) o2m1)
+	  t1'
+      )
+      o2
+      ISMap.empty
+  in
   let tm =
     ISMap.fold
       (fun m1 t1 acc ->
@@ -160,9 +195,9 @@ let inter (i1,t1,o1 as l1 : lts) (i2,t2,o2 as l2 : lts) : lts =
       t1'
       ISMap.empty 
   in
-  (i,merge ti tm,o)
+  (i,merge (merge to1 to2) (merge ti tm),o)
 
-let trad =
+let trad chout =
   let rec aux k = function
     | `Var a ->
       let i = ISet.singleton k
@@ -189,7 +224,13 @@ let trad =
     | `Conv _ | `Un | `Zero ->
       failwith "Lts.trad : unsupported operation"
   in
-  (fun e -> fst (aux 0 e))
+  (fun e -> 
+    let res = fst (aux 0 e) 
+    in 
+    Printf.fprintf chout "Automaton for %s :\n%s\n" 
+      (Exprtools.print_expr e)
+      (printlts res);
+    res)
 
 exception ContreExemple2 of string Expr.expr
 
@@ -221,7 +262,7 @@ let compose m1 m2 =
 let rev m =
   IMap.fold (fun i j -> IMap.add j i) m IMap.empty
 
-let simul e1 e2 =
+let simul (i1,l1,fn1) (i2,l2,fn2) =
   let module LMSet = 
 	Set.Make(struct 
 	  type t = ISet.t * MSet.t
@@ -232,8 +273,8 @@ let simul e1 e2 =
 	    else t
 	end)
   in
-  let (i1,l1,fn1) = trad e1 
-  and (i2,l2,fn2) = trad e2 in
+(*  let (i1,l1,fn1) = trad e1 
+  and (i2,l2,fn2) = trad e2 in*)
   let rec aux (_,_,f as w) acc (mk,ms) =
     if LMSet.mem (mk,ms) acc
     then ()
@@ -269,9 +310,9 @@ let simul e1 e2 =
   in
   try
     (aux 
-       Word.init
+       (Word.init i1)
        LMSet.empty 
-       (ISet.singleton 0,MSet.singleton (IMap.singleton 0 0))); 
+       (ISet.singleton i1,MSet.singleton (IMap.singleton i2 i1))); 
     None
   with ContreExemple2 x -> Some x
 

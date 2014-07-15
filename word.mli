@@ -25,7 +25,7 @@ type word = int * TrSet.t * int
 type partword = int * TrSet.t * int Tools.IMap.t
 
 (** Empty word. *)
-val init : partword
+val init : int -> partword
 
 (** Reads a partial word according to some LTS transition. *)
 val read : ('a -> int -> int) -> partword -> Tools.readstate -> ('a * Tools.tranche) 
