@@ -203,7 +203,7 @@ $(EXEC).cmxa : $(OPTOBJS)
 
 $(EXEC).html : $(OBJS)
 	$(CAMLDOC) $(CUSTOM) -o $(EXEC) -html -charset utf8 $(MLI)
-	mkdir -p
+	mkdir -p doc/
 	mv *.html doc/
 	mv *.css doc/
 
