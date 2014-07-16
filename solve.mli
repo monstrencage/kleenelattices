@@ -19,31 +19,9 @@
     the truth of the equation and a string containg a message
     to display, with for instance the witnesses, if some
     were computed.*)
-val solve1 :
+val solve :
   string Expr.eqs -> bool * string
 
-(** [solve_file filename] will process all equations in [filename],
-    and write an output in [filename.res]. *)
-val solve_file1 : string -> string -> unit
-
-(** Given an equation, returns a boolean corresponding to
-    the truth of the equation and a string containg a message
-    to display, with for instance the witnesses, if some
-    were computed.*)
-val solve2 :
-  string Expr.eqs -> bool * string
-
-(** [solve_file filename] will process all equations in [filename],
-    and write an output in [filename.res]. *)
-val solve_file2 : string -> string -> unit
-
-(** Given an equation, returns a boolean corresponding to
-    the truth of the equation and a string containg a message
-    to display, with for instance the witnesses, if some
-    were computed.*)
-val solve3 :
-  string Expr.eqs -> bool * string
-
-(** [solve_file filename] will process all equations in [filename],
-    and write an output in [filename.res]. *)
-val solve_file3 : string -> string -> unit
+(** [solve_file filename dest] will process all equations in 
+    [filename], and write an output in [dest.res]. *)
+val solve_file : string -> string -> unit
