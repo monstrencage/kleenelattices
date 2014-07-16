@@ -28,7 +28,9 @@ let printpartword (i,t,f) =
 
 let init i = (0,TrSet.empty,IMap.singleton i 0)
 
-let read mkrn (i0,w,f) m1 (eq,tr) =
+let mkrn e i = try IMap.find i e with Not_found -> i
+
+let read (i0,w,f) m1 (eq,tr) =
   let rn = mkrn eq in
   if
     IMap.exists
@@ -36,7 +38,6 @@ let read mkrn (i0,w,f) m1 (eq,tr) =
       m1
   then (MSet.empty)
   else
-    let dm = dom m1 in
     let m1' = 
       IMap.filter
 	(fun i _ -> not (IMap.mem i eq))
@@ -89,7 +90,7 @@ let rename p ps w =
 let fresh (i0,w,f) = 
   1+(TrSet.fold (fun (i,_,j) m -> max i (max j m)) w i0)
 
-let evolve_word mkrn (i0,w,f) (eq,t) =
+let evolve_word (i0,w,f) (eq,t) =
 (*  Printf.printf "word %s along %s then %s\n" 
     (printtrset w)
     (printimap string_of_int eq)
@@ -106,7 +107,7 @@ let evolve_word mkrn (i0,w,f) (eq,t) =
 	with Not_found -> p) 
       f 
   in
-  assert (ISet.subset m (dom f));
+(*  assert (ISet.subset m (dom f));*)
   let w1 = 
     IMap.fold 
       (fun i ps w ->
@@ -136,9 +137,9 @@ let close (i,w,f) =
   let o = (fresh (i,w,f)) in
   (i,rename o (IMap.fold (fun _ -> ISet.add) f ISet.empty) w,o)
 
-let build_word mkrn l =
+let build_word l =
   let i0,w,f = 
-    List.fold_left (evolve_word mkrn) (0,TrSet.empty,IMap.singleton 0 0) l 
+    List.fold_left evolve_word (0,TrSet.empty,IMap.singleton 0 0) l 
   in
   close (i0,w,f)
 
@@ -151,12 +152,9 @@ let print_word (_,w,_) =
 
 
 let par = function
-  | `Zero,x | x,`Zero -> x
   | e1,e2 -> `Inter (e1,e2)
 
 let conc = function
-  | `Zero,x | x,`Zero -> `Zero
-  | `Un,x | x,`Un -> x
   | e1,e2 -> `Conc (e1,e2)
     
 let succ k w =
@@ -228,11 +226,14 @@ let rec get_expr (i,w,o) =
   let e = 
     let r = reachability (i,w,o) in
     if i = o
-    then `Un
+    then failwith "get_expr : empty word"
     else
       match succ i w with
-      | [] -> `Zero
-      | [(x,a,y)] -> conc (`Var a,get_expr (y,w,o))
+      | [] -> failwith "get_expr : stuck" (*`Zero*)
+      | [(x,a,y)] -> 
+	if y=o
+	then `Var a
+	else conc (`Var a,get_expr (y,w,o))
       | (x,a,y)::lst ->
 	let joints =
 	  ISet.filter
@@ -269,7 +270,13 @@ let rec get_expr (i,w,o) =
 		     (fun tr -> not (List.mem tr later)) w,
 		    o)))
 	   else
-	     (List.fold_left (fun e (_,a,_) -> par (e,`Var a)) 
-		`Zero later))
+	     begin
+	       match later with
+	       | [_,a,_] -> `Var a
+	       | [] -> failwith "get_expr : stuck"
+	       | (_,a,_)::later ->
+		 (List.fold_left (fun e (_,a,_) -> par (e,`Var a)) 
+		    (`Var a) later)
+	     end)
   in
   e

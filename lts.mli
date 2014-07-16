@@ -13,25 +13,23 @@
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation, Inc.,
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*)
-(** Some basic tools to work with expressions. *)
+(** Direct constructions of LTS from expressions, 
+    and LTS simulation. *)
 
-(** Writes an expression as a string. *)
-val print_expr :
-  ([< `Conc of 'a * 'a
-    | `Conv of 'a
-    | `Inter of 'a * 'a
-    | `Star of 'a
-    | `Un
-    | `Union of 'a * 'a
-    | `Var of string
-    | `Zero ]
-   as 'a) ->
-  string
+(** Computes an LTS from an identity-free expression. *)
+val trad : string Expr.expr -> Tools.lts
 
-(** Parses a given string as an expression over strings. *)
-val get_string : string -> string Expr.expr
+(** Tries to find a ground term of the first LTS that
+    is not recognised by the second LTS. In case of success, 
+    returns said term.
+    Otherwise returns [None]. *)
+val simul :
+  Tools.lts -> Tools.lts -> string Expr.ground option
 
-(** Parses a given string as an comparison between two 
-    expressions over strings. *)
-val get_eq : string -> Expr.comp * string Expr.expr * string Expr.expr
+(** {3 Operators on LTS.} *)
 
+
+val union : Tools.lts -> Tools.lts -> Tools.lts
+val concat : Tools.lts -> Tools.lts -> Tools.lts
+val inter : Tools.lts -> Tools.lts -> Tools.lts
+val iter : Tools.lts -> Tools.lts

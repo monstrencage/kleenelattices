@@ -15,6 +15,7 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*)
 (** Tools to be used in the project. *)
 
+(** {3 Usefull modules.} *)
 (** Implementation of maps with integer keys. *)
 module IMap : Map.S with type key = int
 
@@ -33,6 +34,49 @@ module ISMap : Map.S with type key = ISet.t
 (** Implementation of sets of pairs of a sting and an integer. *)
 module SISet : Set.S with type elt = string * int
 
+(** Sets of transitions, as triples. *)
+module TrSet : Set.S with type elt = int * string * int
+
+(** Union-find structure, constructed using [UnionFind]. *)
+module IUF : sig
+  type item = int
+  type state
+  val initial : state
+  val representative : item -> state -> item
+  val equivalent : item -> item -> state -> bool
+  val union : item -> item -> state -> state
+  val domain : state -> item list
+end
+
+(** {3 Types and exceptions.}*)
+(** Alias for ISet.t*)
+type marquage = ISet.t
+
+(** Maps from integers to sets of pairs of a string and an integer. *)
+type tranche = SISet.t IMap.t
+
+(** Type for equivalence relations. *)
+type equiv = IUF.state
+
+(** Alias for maps from integers to integers. *)
+type readstate = int IMap.t
+
+(** Alias for [MSet.t]. *)
+type readstateset = MSet.t
+
+(** Some type for transitions. *)
+type trans = readstate * tranche
+
+(** Type for labeled transition system. *)
+type lts = 
+  int * (trans * marquage) list ISMap.t * ISSet.t
+
+(** Exception to be raised when a ground term proving 
+    non-inclusion has een found. *)
+exception ContreExemple of string Expr.ground
+
+(** {3 Some basic functions.} *)
+
 (** [add_set s i m] will return a map where [s] is associated to a list
     containing all the previous bindings of [s] in [m] with the addition 
     of [i]. All the other bindings of [m] are unchanged. *)
@@ -48,17 +92,6 @@ val bind : ('a -> 'b list) -> 'a list -> 'b list
 (** [ilst2set l] computes to the set of integers appearing in [l].*)
 val ilst2set : int list -> ISet.t
 
-(** Union-find structure, constructed using [UnionFind]. *)
-module IUF : sig
-  type item = int
-  type state
-  val initial : state
-  val representative : item -> state -> item
-  val equivalent : item -> item -> state -> bool
-  val union : item -> item -> state -> state
-  val domain : state -> item list
-end
-
 (** Tests the equality of the restriction to some finite domain of 
     two relations over integers. *)
 val eqstates : (int -> int -> bool) -> (int -> int -> bool) -> 
@@ -71,31 +104,13 @@ val img : SISet.t IMap.t -> ISet.t
 (** [dom m] computes the set of indexes that are bound to something in [m]. *)
 val dom : 'a IMap.t -> ISet.t
 
-(** Alias for ISet.t*)
-type marquage = ISet.t
+(** Functional composition of maps. *)
+val compose : int IMap.t -> int IMap.t -> int IMap.t
 
-(** Maps from integers to sets of pairs of a string and an integer. *)
-type tranche = SISet.t IMap.t
+(** Returns the inverse of a bijective map. *)
+val rev : int IMap.t -> int IMap.t
 
-(** Sets of transitions, as triples. *)
-module TrSet : Set.S with type elt = int * string * int
-
-(** Type for equivalence relations. *)
-type equiv = IUF.state
-
-(** Type for labeled transition system with states of type ['a] 
-    and transitions of type ['b]. *)
-type 'b lts = 
-  int * ('b * marquage) list ISMap.t * ISSet.t
-
-(** Alias for maps from integers to integers. *)
-type readstate = int IMap.t
-
-(** Alias for [MSet.t]. *)
-type readstateset = MSet.t
-
-(** Some type for transitions. *)
-type trans = readstate * tranche
+(** {3 Printing functions.} *)
 
 val printlist : ('a -> string) -> 'a list -> string
 
@@ -109,4 +124,5 @@ val printmset : MSet.t -> string
 val printtrset : TrSet.t -> string
 
 val printtrans : trans * marquage -> string
-val printlts : trans lts -> string
+val printlts : lts -> string
+

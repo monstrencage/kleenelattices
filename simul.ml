@@ -101,7 +101,7 @@ let nextstep (n,tr : net) (m : marquage)
   aux [] IUF.initial IMap.empty m
 
 
-let getlts (pet : Petri.net) : trans lts =
+let getlts (pet : Petri.net) : lts =
   let rec aux states lts = function
     | [] -> states,lts
     | m::todo ->
@@ -290,9 +290,6 @@ let fninf (fn1 : marquage -> bool) (pet2 : Petri.net)
       m1
   else true
 
-exception ContreExemple1 of trans list
-
-let mkrn e i = try IMap.find i e with Not_found -> i
 
 let simul pet1 pet2 =
   let module LMMap = 
@@ -323,11 +320,11 @@ let simul pet1 pet2 =
 	      aux ((eq,t1)::trlst) acc' (k+1) (mark',simulstep pet2 (eq,t1) ms))
 	    next
       else raise 
-	(ContreExemple1 trlst)
+	(ContreExemple (Word.get_expr (Word.build_word (List.rev trlst))))
   in
   try
     (aux [] LMMap.empty 0 (ISet.singleton 0,MSet.singleton (IMap.singleton 0 0))); None
-  with ContreExemple1 x -> Some (Word.get_expr (Word.build_word mkrn (List.rev x)))
+  with ContreExemple x -> Some x
 
 
 (*

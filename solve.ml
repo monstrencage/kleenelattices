@@ -56,7 +56,7 @@ let solve_file bld inf filename fdest =
       let s = input_line chin in
       try
 	Printf.printf "Computing %s\n" s;
-	let res,b = solve (bld stdout) inf (get_eq s) in
+	let res,b = solve bld inf (get_eq s) in
 	Printf.fprintf chout "%s --------- %s\n%s\n\n" 
 	  s (if res then "OK" else "Incorrect") b;
 	aux ()
@@ -72,12 +72,12 @@ let inf2 = inf Lts.simul
 
 let solve1 = solve trad inf1
 
-let solve_file1 = solve_file (fun _ -> trad) inf1
+let solve_file1 = solve_file trad inf1
 
 let solve2 = solve (fun e -> Simul.getlts (trad e)) inf2
 
-let solve_file2 = solve_file (fun _ e -> Simul.getlts (trad e)) inf2
+let solve_file2 = solve_file (fun e -> Simul.getlts (trad e)) inf2
 
-let solve3 = solve (Lts.trad stdout) inf2
+let solve3 = solve Lts.trad inf2
 
 let solve_file3 = solve_file Lts.trad inf2

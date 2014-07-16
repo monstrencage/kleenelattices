@@ -1,6 +1,19 @@
-open Tools
+(* Copyright (C) 2014 Paul Brunet
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
 
-type lts = (*int * (((readstate * tranche) * ISet.t) list) ISMap.t * ISSet.t*) (readstate * tranche) Tools.lts
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License along
+   with this program; if not, write to the Free Software Foundation, Inc.,
+   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*)
+open Tools
 
 let mergeint _ i j =
   match (i,j) with 
@@ -197,7 +210,7 @@ let inter (i1,t1,o1 as l1 : lts) (i2,t2,o2 as l2 : lts) : lts =
   in
   (i,merge (merge to1 to2) (merge ti tm),o)
 
-let trad chout =
+let trad(* chout *)=
   let rec aux k = function
     | `Var a ->
       let i = ISet.singleton k
@@ -232,16 +245,10 @@ let trad chout =
       (printlts res);*)
     res)
 
-exception ContreExemple2 of string Expr.expr
-
 let ltsfninf fn1 fn2 (mk,ms) =
   if ISSet.mem mk fn1
   then MSet.exists (fun m -> ISSet.mem (dom m) fn2) ms
   else true
-
-let mkrn e i = 
-  try IMap.find i e
-  with Not_found -> i
 
 let read lts ms w =
   MSet.fold
@@ -250,17 +257,11 @@ let read lts ms w =
       let next =  get_def [] ISMap.find mk lts in
       List.fold_left
 	(fun acc (trans,_) ->
-	  MSet.union acc (Word.read mkrn w m trans))
+	  MSet.union acc (Word.read w m trans))
 	ms
 	next)
     ms
     MSet.empty
-
-let compose m1 m2 =
-  IMap.map (fun i -> try IMap.find i m2 with Not_found -> i) m1
-
-let rev m =
-  IMap.fold (fun i j -> IMap.add j i) m IMap.empty
 
 let simul (i1,l1,fn1) (i2,l2,fn2) =
 (*  Printf.printf "Simulation.....\n";*)
@@ -293,7 +294,7 @@ let simul (i1,l1,fn1) (i2,l2,fn2) =
 	  else
 	    List.iter
 	      (fun ((eq,t1),mark') -> 
-		let (_,_,f' as w') = Word.evolve_word mkrn w (eq,t1) in
+		let (_,_,f' as w') = Word.evolve_word w (eq,t1) in
 		let ms0 = 
 		  MSet.fold
 		    (fun m -> MSet.add (compose (compose m eq) f))
@@ -313,7 +314,7 @@ let simul (i1,l1,fn1) (i2,l2,fn2) =
 		aux w' acc' (mark',ms'))
 	      next
 	else raise 
-	  (ContreExemple2 (Word.get_expr (Word.close w)))
+	  (ContreExemple (Word.get_expr (Word.close w)))
       end
   in
   try
@@ -323,6 +324,6 @@ let simul (i1,l1,fn1) (i2,l2,fn2) =
        (ISet.singleton i1,MSet.singleton (IMap.singleton i2 i1))); 
     (*print_newline ();*)
     None
-  with ContreExemple2 x -> 
+  with ContreExemple x -> 
     (*print_newline ();*)Some x
 

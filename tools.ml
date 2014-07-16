@@ -123,14 +123,22 @@ let img t = IMap.fold (fun _ t -> (SISet.fold (fun (_,q) -> ISet.add q) t)) t IS
 
 let dom t = IMap.fold (fun i _ -> ISet.add i) t ISet.empty
 
+let compose m1 m2 =
+  IMap.map (fun i -> try IMap.find i m2 with Not_found -> i) m1
+
+let rev m =
+  IMap.fold (fun i j -> IMap.add j i) m IMap.empty
+
+
+
 type marquage = ISet.t
 type tranche = SISet.t IMap.t
 type equiv = IUF.state
-type 'b lts = 
-  int * ('b * marquage) list ISMap.t * ISSet.t
 type readstate = int IMap.t
 type readstateset = MSet.t
 type trans = readstate * tranche
+type lts = 
+  int * (trans * marquage) list ISMap.t * ISSet.t
 
 let printimap f2 m =
   Printf.sprintf "(%s)"
@@ -188,3 +196,5 @@ let printlts (i,t,o) =
        (printlist printtrans)
        t)
     (printisset o)
+
+exception ContreExemple of string Expr.ground
