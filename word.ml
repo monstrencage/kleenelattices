@@ -16,15 +16,15 @@
 open Tools
 open Exprtools
 
-
-module TrSet = Set.Make(struct
-  type t = int * string * int
-  let compare = compare
-end)
-
 type word = int * TrSet.t * int
 
 type partword = int * TrSet.t * int IMap.t
+
+let printpartword (i,t,f) =
+  Printf.sprintf "init : %d,\ntrans : %s,\nact : %s"
+    i
+    (printtrset t)
+    (printimap string_of_int f)
 
 let init i = (0,TrSet.empty,IMap.singleton i 0)
 
@@ -39,13 +39,7 @@ let read mkrn (i0,w,f) m1 (eq,tr) =
     let dm = dom m1 in
     let m1' = 
       IMap.filter
-	(fun i _ ->
-	  if not (IMap.mem i tr)
-	  then
-	    ISet.for_all
-	      (fun j -> rn i <> rn j)
-	      dm
-	  else false)
+	(fun i _ -> not (IMap.mem i eq))
 	m1
     in
     let aux i (a,j) m =
@@ -96,10 +90,14 @@ let fresh (i0,w,f) =
   1+(TrSet.fold (fun (i,_,j) m -> max i (max j m)) w i0)
 
 let evolve_word mkrn (i0,w,f) (eq,t) =
+(*  Printf.printf "word %s along %s then %s\n" 
+    (printtrset w)
+    (printimap string_of_int eq)
+    (printimap printsiset t);*)
   let k = fresh (i0,w,f) in
   let rn = mkrn eq in
   let cl = classes f rn in
-  let m = dom t in
+  let m = dom eq in
   let f0 = IMap.filter (fun i _ -> not (ISet.mem i m)) f in
   let f1 = 
     IMap.mapi 

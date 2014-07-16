@@ -77,6 +77,9 @@ type marquage = ISet.t
 (** Maps from integers to sets of pairs of a string and an integer. *)
 type tranche = SISet.t IMap.t
 
+(** Sets of transitions, as triples. *)
+module TrSet : Set.S with type elt = int * string * int
+
 (** Type for equivalence relations. *)
 type equiv = IUF.state
 
@@ -94,4 +97,16 @@ type readstateset = MSet.t
 (** Some type for transitions. *)
 type trans = readstate * tranche
 
+val printlist : ('a -> string) -> 'a list -> string
+
+val printimap : ('a -> string) -> 'a IMap.t -> string
+val printismap : ('a -> string) -> 'a ISMap.t -> string
+
+val printiset : ISet.t -> string
+val printisset : ISSet.t -> string
+val printsiset : SISet.t -> string
+val printmset : MSet.t -> string
+val printtrset : TrSet.t -> string
+
+val printtrans : trans * marquage -> string
 val printlts : trans lts -> string

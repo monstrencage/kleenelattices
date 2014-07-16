@@ -83,6 +83,12 @@ end
 
 module SISet = Set.Make (StrInt)
 
+
+module TrSet = Set.Make(struct
+  type t = int * string * int
+  let compare = compare
+end)
+
 let support m =
   IMap.fold (fun i _ -> ISet.add i) m ISet.empty
 
@@ -150,6 +156,17 @@ let printsiset m =
 Printf.sprintf "{%s}"
   (String.concat ","
      (List.map (fun (s,i) -> Printf.sprintf "(%s,%d)" s i) (SISet.elements m)))
+
+let printtrset m =
+Printf.sprintf "{%s}"
+  (String.concat ","
+     (List.map (fun (i,s,j) -> Printf.sprintf "(%d,%s,%d)" i s j) (TrSet.elements m)))
+
+
+let printmset m =
+Printf.sprintf "{%s}"
+  (String.concat ","
+     (List.map (printimap string_of_int) (MSet.elements m)))
 
 
 let printismap f2 m =

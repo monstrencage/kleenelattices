@@ -227,9 +227,9 @@ let trad chout =
   (fun e -> 
     let res = fst (aux 0 e) 
     in 
-    Printf.fprintf chout "Automaton for %s :\n%s\n" 
+(*    Printf.fprintf chout "Automaton for %s :\n%s\n" 
       (Exprtools.print_expr e)
-      (printlts res);
+      (printlts res);*)
     res)
 
 exception ContreExemple2 of string Expr.expr
@@ -263,6 +263,7 @@ let rev m =
   IMap.fold (fun i j -> IMap.add j i) m IMap.empty
 
 let simul (i1,l1,fn1) (i2,l2,fn2) =
+(*  Printf.printf "Simulation.....\n";*)
   let module LMSet = 
 	Set.Make(struct 
 	  type t = ISet.t * MSet.t
@@ -273,46 +274,55 @@ let simul (i1,l1,fn1) (i2,l2,fn2) =
 	    else t
 	end)
   in
-(*  let (i1,l1,fn1) = trad e1 
-  and (i2,l2,fn2) = trad e2 in*)
   let rec aux (_,_,f as w) acc (mk,ms) =
     if LMSet.mem (mk,ms) acc
     then ()
     else 
-      let acc' = LMSet.add (mk,ms) acc in
-      if ltsfninf fn1 fn2 (mk,ms)
-      then
-	let next =  get_def [] ISMap.find mk l1 in
-	if next = []
-	then ()
-	else
-	  List.iter
-	    (fun ((eq,t1),mark') -> 
-	      let (_,_,f' as w') = Word.evolve_word mkrn w (eq,t1) in
-	      let ms0 = 
-		MSet.fold
-		  (fun m -> MSet.add (compose (compose m eq) f))
-		  ms 
-		  MSet.empty
-	      in
-	      let ms1 = read l2 ms0 w' in
-	      let finv = rev f' in
-	      let ms' = 
-		MSet.fold
-		  (fun m -> MSet.add (compose m finv))
-		  ms1
-		  MSet.empty
-	      in
-	      aux w' acc' (mark',ms'))
-	    next
-      else raise 
-	(ContreExemple2 (Word.get_expr (Word.close w)))
+      begin
+	(*Printf.printf 
+	  "Current word : \n%s\nstate1 : %s\nstate2 :\n%s\n"
+	  (Word.printpartword w)
+	  (printiset mk)
+	  (printmset ms);*)
+	let acc' = LMSet.add (mk,ms) acc in
+	if ltsfninf fn1 fn2 (mk,ms)
+	then
+	  let next =  get_def [] ISMap.find mk l1 in
+	  if next = []
+	  then ()
+	  else
+	    List.iter
+	      (fun ((eq,t1),mark') -> 
+		let (_,_,f' as w') = Word.evolve_word mkrn w (eq,t1) in
+		let ms0 = 
+		  MSet.fold
+		    (fun m -> MSet.add (compose (compose m eq) f))
+		    ms 
+		    MSet.empty
+		in
+		let ms1 = read l2 ms0 w' in
+		let finv = rev f' in
+(*		Printf.printf "before redirection : %s\n"
+		  (printmset ms1);*)
+		let ms' = 
+		  MSet.fold
+		    (fun m -> MSet.add (compose m finv))
+		    ms1
+		    MSet.empty
+		in
+		aux w' acc' (mark',ms'))
+	      next
+	else raise 
+	  (ContreExemple2 (Word.get_expr (Word.close w)))
+      end
   in
   try
     (aux 
        (Word.init i1)
        LMSet.empty 
        (ISet.singleton i1,MSet.singleton (IMap.singleton i2 i1))); 
+    (*print_newline ();*)
     None
-  with ContreExemple2 x -> Some x
+  with ContreExemple2 x -> 
+    (*print_newline ();*)Some x
 

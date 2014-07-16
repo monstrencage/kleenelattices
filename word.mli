@@ -15,33 +15,33 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*)
 (** Converting a series of transitions into a word, and printing it. *)
 
-(** Sets of elementary transitions. *)
-module TrSet : Set.S with type elt = int * string * int
-
 (** Type of words. *)
-type word = int * TrSet.t * int
+type word = int * Tools.TrSet.t * int
 
 (** Type of partial words. *)
-type partword = int * TrSet.t * int Tools.IMap.t
+type partword = int * Tools.TrSet.t * int Tools.IMap.t
 
 (** Empty word. *)
 val init : int -> partword
 
 (** Reads a partial word according to some LTS transition. *)
-val read : ('a -> int -> int) -> partword -> Tools.readstate -> ('a * Tools.tranche) 
+val read : (Tools.readstate -> int -> int) -> partword -> Tools.readstate -> (Tools.readstate * Tools.tranche) 
   -> Tools.readstateset
 
 (** Updates a partial word with a new LTS transition. *)
-val evolve_word : ('a -> int -> int) -> partword -> ('a * Tools.tranche) -> partword
+val evolve_word : (Tools.readstate -> int -> int) -> partword -> (Tools.readstate * Tools.tranche) -> partword
 
 (** Closes a partial word, by merging all actives branches. *)
 val close : partword -> word
 
 (** Converts a list of transitions into a word. *)
-val build_word : ('a -> int -> int) -> ('a * Tools.tranche) list -> word
+val build_word : (Tools.readstate -> int -> int) -> (Tools.readstate * Tools.tranche) list -> word
 
 (** Prints a word. *)
 val print_word : word -> string
+
+(** Prints a partword. *)
+val printpartword : partword -> string
 
 (** Converts a word into an expression. *)
 val get_expr : word -> string Expr.expr
