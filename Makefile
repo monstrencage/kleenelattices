@@ -101,7 +101,7 @@ CAMLYACC = ocamlyacc
 # LIBS=$(WITHGRAPHICS) $(WITHUNIX) $(WITHSTR) $(WITHNUMS) $(WITHTHREADS)\
 # $(WITHDBM)
 
- LIBS=$(WITHUNIX)
+# LIBS=$(WITHUNIX)
 
 # Should be set to -custom if you use any of the libraries above
 # or if any C code have to be linked with your program
@@ -133,7 +133,16 @@ WITHDBM =dbm.cma -cclib -lmldbm -cclib -lndbm
 
 std :: .depend.input .depend $(EXEC)
 
-all:: .depend.input .depend $(EXEC) $(EXEC).html $(EXEC).opt $(EXEC).cma
+all:: std opt doc libs
+
+BMLI = $(filter %.mli,$(SMLIYL))
+BYTES = $(BMLI:.mli=.cmi) $(OBJS) $(EXEC).cma
+OPTS = $(OPTOBJS) $(OPTOBJS:.cmx=.o) $(EXEC).cmxa $(EXEC).a
+
+install: std opt libs
+	cp $(EXEC).opt /usr/bin/$(EXEC)
+	mkdir -p /usr/lib/ocaml/solve
+	cp $(BYTES) $(OPTS) /usr/lib/ocaml/solve/
 
 opt : $(EXEC).opt
 
@@ -141,7 +150,7 @@ doc : $(EXEC).html
 
 top : $(EXEC)_top
 
-lib : $(EXEC).cma
+libs : $(EXEC).cma $(EXEC).cmxa
 
 archive : $(EXEC).tar.gz
 
@@ -153,7 +162,7 @@ archive : $(EXEC).tar.gz
 #ocamlc -custom other options dbm.cma other files -cclib -lmldbm -cclib -lndbm
 
 SMLIY = $(SOURCES:.mly=.ml)
-SMLIYL = $(SMLIY:.mll=.ml)
+SMLIYL = $(SMLIY:.mll=.ml) $($(filter %.mly,$(SOURCES)):.mly=.mli)
 SMLYL = $(filter %.ml,$(SMLIYL))
 OBJS = $(SMLYL:.ml=.cmo)
 OPTOBJS = $(SMLYL:.ml=.cmx)
@@ -189,8 +198,12 @@ $(EXEC)_top : $(OBJS)
 $(EXEC).cma : $(OBJS)
 	$(CAMLC) $(CUSTOM) -a -o $(EXEC).cma $(LIBS) $(OBJS)
 
+$(EXEC).cmxa : $(OPTOBJS)
+	$(CAMLOPT) -a -o $(EXEC).cmxa $(filter-out %.cma,$(LIBS)) $(OPTOBJS)
+
 $(EXEC).html : $(OBJS)
 	$(CAMLDOC) $(CUSTOM) -o $(EXEC) -html -charset utf8 $(MLI)
+	mkdir -p
 	mv *.html doc/
 	mv *.css doc/
 
@@ -241,6 +254,7 @@ clean::
 	rm -f $(EXEC).opt
 	rm -f $(EXEC)_top
 	rm -f $(EXEC).cma
+	rm -f $(EXEC).cmxa
 
 .depend.input: Makefile
 	@echo -n '--Checking Ocaml input files: '
