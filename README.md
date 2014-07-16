@@ -48,7 +48,7 @@ The valid comparaisons `<cmp>` are :
 * `>` : converse of the strict inclusion
 * `=` : equality
 * `=\=` : negation of the equality
-* '<>' : means that the two expressions are incomparable, *i.e.* neither one of them is included in the other.
+* `<>` : means that the two expressions are incomparable, *i.e.* neither one of them is included in the other.
 
 
 If `file` is a correct input file, then calling
