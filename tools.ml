@@ -99,7 +99,7 @@ module Descriptor = struct
     let union d1 d2 acc = (d1+d2,())
   end
 
-module IUF = struct
+(*module IUF = struct
   include
     UnionFind.Make(struct
       include Int
@@ -108,7 +108,7 @@ module IUF = struct
     end)(Descriptor)
   let union i j eq =
     fst (union i j eq ())
-end
+end*)
 
 let eqstates eq1 eq2 m = 
   ISet.for_all 
@@ -133,7 +133,7 @@ let rev m =
 
 type marquage = ISet.t
 type tranche = SISet.t IMap.t
-type equiv = IUF.state
+(*type equiv = IUF.state*)
 type readstate = int IMap.t
 type readstateset = MSet.t
 type trans = readstate * tranche

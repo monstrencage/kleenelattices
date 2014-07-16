@@ -16,7 +16,6 @@
 open Tools
 open Expr
 open Exprtools
-open Petri
 
 let inf simul se1 se2 e1 e2 =
   match simul e1 e2 with
@@ -66,18 +65,8 @@ let solve_file bld inf filename fdest =
   in
   aux ()
 
-let inf1 = inf Simul.simul
+let inf = inf Lts.simul
 
-let inf2 = inf Lts.simul
+let solve = solve Lts.trad inf
 
-let solve1 = solve trad inf1
-
-let solve_file1 = solve_file trad inf1
-
-let solve2 = solve (fun e -> Simul.getlts (trad e)) inf2
-
-let solve_file2 = solve_file (fun e -> Simul.getlts (trad e)) inf2
-
-let solve3 = solve Lts.trad inf2
-
-let solve_file3 = solve_file Lts.trad inf2
+let solve_file = solve_file Lts.trad inf

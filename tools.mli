@@ -37,26 +37,12 @@ module SISet : Set.S with type elt = string * int
 (** Sets of transitions, as triples. *)
 module TrSet : Set.S with type elt = int * string * int
 
-(** Union-find structure, constructed using [UnionFind]. *)
-module IUF : sig
-  type item = int
-  type state
-  val initial : state
-  val representative : item -> state -> item
-  val equivalent : item -> item -> state -> bool
-  val union : item -> item -> state -> state
-  val domain : state -> item list
-end
-
 (** {3 Types and exceptions.}*)
 (** Alias for ISet.t*)
 type marquage = ISet.t
 
 (** Maps from integers to sets of pairs of a string and an integer. *)
 type tranche = SISet.t IMap.t
-
-(** Type for equivalence relations. *)
-type equiv = IUF.state
 
 (** Alias for maps from integers to integers. *)
 type readstate = int IMap.t

@@ -16,14 +16,10 @@
 let _ =
   let file,solve,fdest = 
     let f = ref "" 
-    and solve = ref Solve.solve_file1 
+    and solve = ref Solve.solve_file
     and fdest = ref "" in
     Arg.parse 
-      ["--interm",Arg.Unit(fun () -> solve:=Solve.solve_file2),
-       "Uses petri then lts.";
-       "--new",Arg.Unit(fun () -> solve:=Solve.solve_file3),
-       "Uses lts directly.";
-       "-o",Arg.Set_string fdest,
+      ["-o",Arg.Set_string fdest,
        "Set the destination name"
       ] 
       (fun s -> f:=s) "";
