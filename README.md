@@ -1,10 +1,12 @@
-kleenelattices
+Kleenelattices
 ==============
 
 Library and tools to compare identity-free regular expressions with intersection.
 
+Project home page : http://monstrencage.github.io/kleenelattices
+
 ## Required
-To compile and run this program you need OCaml version 4.00 or higher.
+:camel: To compile and run this program you need OCaml version 4.00 or higher.
 
 ## Installation
 To compile a bytecode executable, enter in a shell in the source folder :
@@ -21,6 +23,8 @@ If you want to produce a library, the command :
 ```shell
 $ make libs
 ```
+
+You can find the complete documentation of the project [there](http://monstrencage.github.io/kleenelattices/doc/solve.html).
 
 You can also install both the libraries and the executable program :
 ```shell
