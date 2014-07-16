@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=utf8" http-equiv="Content-Type">
+<link rel="Start" href="solve.html">
+<link rel="previous" href="Tools.html">
+<link rel="next" href="Lts.html">
+<link rel="Up" href="solve.html">
+<link title="Index of types" rel=Appendix href="solve_types.html">
+<link title="Index of exceptions" rel=Appendix href="solve_exceptions.html">
+<link title="Index of values" rel=Appendix href="solve_values.html">
+<link title="Index of modules" rel=Appendix href="solve_modules.html">
+<link title="Expr" rel="Chapter" href="Expr.html">
+<link title="Exprtools" rel="Chapter" href="Exprtools.html">
+<link title="Solve" rel="Chapter" href="Solve.html">
+<link title="Tools" rel="Chapter" href="Tools.html">
+<link title="Word" rel="Chapter" href="Word.html">
+<link title="Lts" rel="Chapter" href="Lts.html"><title>Word</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Tools.html" title="Tools">Previous</a>
+&nbsp;<a class="up" href="solve.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Lts.html" title="Lts">Next</a>
+</div>
+<h1>Module <a href="type_Word.html">Word</a></h1>
+
+<pre><span class="keyword">module</span> Word: <code class="code">sig</code> <a href="Word.html">..</a> <code class="code">end</code></pre><div class="info module top">
+Converting a series of transitions into a word, and printing it.<br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEword"><span class="keyword">type</span> <code class="type"></code>word</span> = <code class="type">int * Tools.TrSet.t * int</code> </pre>
+<div class="info ">
+Type of words.<br>
+</div>
+
+
+<pre><span id="TYPEpartword"><span class="keyword">type</span> <code class="type"></code>partword</span> = <code class="type">int * Tools.TrSet.t * int Tools.IMap.t</code> </pre>
+<div class="info ">
+Type of partial words.<br>
+</div>
+
+
+<pre><span id="VALinit"><span class="keyword">val</span> init</span> : <code class="type">int -> <a href="Word.html#TYPEpartword">partword</a></code></pre><div class="info ">
+Empty word.<br>
+</div>
+
+<pre><span id="VALread"><span class="keyword">val</span> read</span> : <code class="type"><a href="Word.html#TYPEpartword">partword</a> -> <a href="Tools.html#TYPEreadstate">Tools.readstate</a> -> <a href="Tools.html#TYPEtrans">Tools.trans</a> -> <a href="Tools.html#TYPEreadstateset">Tools.readstateset</a></code></pre><div class="info ">
+Reads a partial word according to some LTS transition.<br>
+</div>
+
+<pre><span id="VALevolve_word"><span class="keyword">val</span> evolve_word</span> : <code class="type"><a href="Word.html#TYPEpartword">partword</a> -> <a href="Tools.html#TYPEtrans">Tools.trans</a> -> <a href="Word.html#TYPEpartword">partword</a></code></pre><div class="info ">
+Updates a partial word with a new LTS transition.<br>
+</div>
+
+<pre><span id="VALclose"><span class="keyword">val</span> close</span> : <code class="type"><a href="Word.html#TYPEpartword">partword</a> -> <a href="Word.html#TYPEword">word</a></code></pre><div class="info ">
+Closes a partial word, by merging all actives branches.<br>
+</div>
+
+<pre><span id="VALbuild_word"><span class="keyword">val</span> build_word</span> : <code class="type"><a href="Tools.html#TYPEtrans">Tools.trans</a> list -> <a href="Word.html#TYPEword">word</a></code></pre><div class="info ">
+Converts a list of transitions into a word.<br>
+</div>
+
+<pre><span id="VALprint_word"><span class="keyword">val</span> print_word</span> : <code class="type"><a href="Word.html#TYPEword">word</a> -> string</code></pre><div class="info ">
+Prints a word.<br>
+</div>
+
+<pre><span id="VALprintpartword"><span class="keyword">val</span> printpartword</span> : <code class="type"><a href="Word.html#TYPEpartword">partword</a> -> string</code></pre><div class="info ">
+Prints a partword.<br>
+</div>
+
+<pre><span id="VALget_expr"><span class="keyword">val</span> get_expr</span> : <code class="type"><a href="Word.html#TYPEword">word</a> -> string <a href="Expr.html#TYPEground">Expr.ground</a></code></pre><div class="info ">
+Converts a word into an expression.<br>
+</div>
+</body></html>
