@@ -112,3 +112,7 @@ val printtrset : TrSet.t -> string
 val printtrans : trans * marquage -> string
 val printlts : lts -> string
 
+(** {3 Input function.} *)
+
+(** List of the lines in a file. *)
+val input_file : string -> string list

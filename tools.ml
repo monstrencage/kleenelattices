@@ -198,3 +198,13 @@ let printlts (i,t,o) =
     (printisset o)
 
 exception ContreExemple of string Expr.ground
+
+let input_file filename =
+  let chin = open_in filename in
+  let rec aux acc =
+    try
+      aux ((input_line chin)::acc)
+    with
+      End_of_file -> (close_in chin;acc)
+  in
+  aux []

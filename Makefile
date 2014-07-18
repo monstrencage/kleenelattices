@@ -77,10 +77,14 @@ MLI = expr.mli exprtools.mli solve.mli tools.mli word.mli lts.mli
 ML = exprtools.ml tools.ml word.ml lts.ml solve.ml
 # unionFind.ml petri.ml printPetri.ml simul.ml
 AUTRES =  parser.mly lexer.mll
+WMAIN = wmain.ml
+
+INPUT = $(MLI) $(AUTRES) $(ML) $(MAIN) $(WMAIN)
 
 # The executable file to generate
 
 EXEC = solve
+WPAGE = solve_script
 
 
 ########################## Advanced user's variables #####################
@@ -90,18 +94,19 @@ EXEC = solve
 # You may also have to add various -I options.
 CAMLC = ocamlc
 CAMLOPT = ocamlopt
-CAMLDEP = ocamldep
+CAMLDEP = ocamlfind ocamldep -package js_of_ocaml -package js_of_ocaml.syntax -syntax camlp4o
 CAMLDOC = ocamldoc
 CAMLTOP = ocamlmktop
 CAMLLEX = ocamllex
 CAMLYACC = ocamlyacc
+CAMLWEB = ocamlfind ocamlc -package js_of_ocaml -package js_of_ocaml.syntax -syntax camlp4o -linkpkg
 
 # The list of Caml libraries needed by the program
 # For instance:
 # LIBS=$(WITHGRAPHICS) $(WITHUNIX) $(WITHSTR) $(WITHNUMS) $(WITHTHREADS)\
 # $(WITHDBM)
 
-# LIBS=$(WITHUNIX)
+#LIBS=$(WITHSTR)
 
 # Should be set to -custom if you use any of the libraries above
 # or if any C code have to be linked with your program
@@ -131,9 +136,11 @@ WITHDBM =dbm.cma -cclib -lmldbm -cclib -lndbm
 ################ Nothing to set up or fix here
 ##############################################################
 
-std :: .depend.input .depend $(EXEC)
+std :: dep $(EXEC)
 
-all:: std opt doc libs
+all:: std opt doc libs js
+
+dep : .depend.input .depend
 
 BMLI = $(filter %.mli,$(SMLIYL))
 BYTES = $(BMLI:.mli=.cmi) $(OBJS) $(EXEC).cma
@@ -144,15 +151,17 @@ install: std opt libs
 	mkdir -p /usr/lib/ocaml/solve
 	cp $(BYTES) $(OPTS) /usr/lib/ocaml/solve/
 
-opt : $(EXEC).opt
+opt : dep $(EXEC).opt
 
-doc : $(EXEC).html
+doc : dep $(EXEC).html
 
-top : $(EXEC)_top
+top : dep $(EXEC)_top
 
-libs : $(EXEC).cma $(EXEC).cmxa
+libs : dep $(EXEC).cma $(EXEC).cmxa
 
-archive : $(EXEC).tar.gz
+js : dep $(WPAGE).js
+
+archive : dep $(EXEC).tar.gz
 
 #ocamlc -custom other options graphics.cma other files -cclib -lgraphics -cclib -lX11
 #ocamlc -thread -custom other options threads.cma other files -cclib -lthreads
@@ -167,11 +176,8 @@ SMLYL = $(filter %.ml,$(SMLIYL))
 OBJS = $(SMLYL:.ml=.cmo)
 OPTOBJS = $(SMLYL:.ml=.cmx)
 
-# SMLIYB = $(SOURCESB:.mly=.ml)
-# SMLIYLB = $(SMLIYB:.mll=.ml)
-# SMLYLB = $(filter %.ml,$(SMLIYLB))
-# OBJSB = $(SMLYLB:.ml=.cmo)
-# OPTOBJSB = $(OBJSB:.cmx=.cmx)
+INMLIY = $(INPUT:.mly=.ml)
+INLIYL = $(INMLIY:.mll=.ml) $($(filter %.mly,$(INPUT)):.mly=.mli)
 
 $(EXEC).tar.gz : $(EXEC).tar
 	gzip $(EXEC).tar;
@@ -209,6 +215,12 @@ $(EXEC).html : $(OBJS)
 
 $(EXEC).opt: $(OPTOBJS)
 	$(CAMLOPT) -o $(EXEC).opt $(LIBS:.cma=.cmxa) $(OPTOBJS) $(MAIN)
+
+$(WPAGE).byte: $(OBJS)
+	$(CAMLWEB) $(LIBS) -o $(WPAGE).byte $(OBJS) $(WMAIN)
+
+$(WPAGE).js: $(WPAGE).byte
+	js_of_ocaml $<
 
 .SUFFIXES: .ml .mli .cmo .cmi .cmx .mll .mly 
 
@@ -249,7 +261,7 @@ $(EXEC).opt: $(OPTOBJS)
 	$(CAMLYACC) $<
 
 clean::
-	rm -f *.cm[iox] *~ .*~ *.o #*#
+	rm -f *.cm[iox] *~ .*~ *.o *.byte *.js #*#
 	rm -f $(EXEC)
 	rm -f $(EXEC).opt
 	rm -f $(EXEC)_top
@@ -258,7 +270,7 @@ clean::
 
 .depend.input: Makefile
 	@echo -n '--Checking Ocaml input files: '
-	@(ls $(SMLIY) $(MAIN) $(SMLIY:.ml=.mli) 2>/dev/null || true) \
+	@(ls $(INMLIY) $(INMLIY:.ml=.mli) 2>/dev/null || true) \
 	     >  .depend.new
 	@diff .depend.new .depend.input 2>/dev/null 1>/dev/null && \
 	    (echo 'unchanged'; rm -f .depend.new) || \
@@ -266,8 +278,8 @@ clean::
 
 depend: .depend
 
-.depend:: $(SMLIYL) $(MAIN) .depend.input
+.depend:: $(INMLIYL) .depend.input
 	@echo '--Re-building dependencies'
-	$(CAMLDEP) $(MAIN) $(SMLIY) $(SMLIY:.ml=.mli) > .depend
+	$(CAMLDEP) $(INMLIY) $(INMLIY:.ml=.mli) > .depend
 
 include .depend

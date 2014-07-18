@@ -15,12 +15,12 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*)
 (** Functions for processing equations. *)
 
-(** Given an equation, returns a boolean corresponding to
+(** Given a string reprensenting an equation, returns a boolean corresponding to
     the truth of the equation and a string containg a message
     to display, with for instance the witnesses, if some
     were computed.*)
 val solve :
-  string Expr.eqs -> bool * string
+  string -> bool * string
 
 (** [solve_file filename dest] will process all equations in 
     [filename], and write an output in [dest.res]. *)
