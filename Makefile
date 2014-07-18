@@ -77,7 +77,7 @@ MLI = expr.mli exprtools.mli solve.mli tools.mli word.mli lts.mli
 ML = exprtools.ml tools.ml word.ml lts.ml solve.ml
 # unionFind.ml petri.ml printPetri.ml simul.ml
 AUTRES =  parser.mly lexer.mll
-WMAIN = wmain.ml
+WMAIN = wmain.mli wmain.ml
 
 INPUT = $(MLI) $(AUTRES) $(ML) $(MAIN) $(WMAIN)
 
@@ -160,6 +160,8 @@ top : dep $(EXEC)_top
 libs : dep $(EXEC).cma $(EXEC).cmxa
 
 js : dep $(WPAGE).js
+	mkdir -p javascripts
+	mv $(WPAGE).js javascripts 
 
 archive : dep $(EXEC).tar.gz
 

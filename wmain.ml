@@ -46,10 +46,11 @@ let onload _ =
   let row = Html.createTr d in
   let txtcell = Html.createTd d in
   let textbox = Html.createTextarea d in
-  textbox##rows <- 20; textbox##cols <- 80;
+  textbox##rows <- 20 ; textbox##cols <- 50;
   let preview = Html.createTd d in
   preview##style##border <- Js.string "1px black dashed";
   preview##style##padding <- Js.string "5px";
+  preview##style##width <- Js.string "400px";
   Dom.appendChild body tab;
   Dom.appendChild tab row;
   Dom.appendChild row txtcell;
