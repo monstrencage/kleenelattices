@@ -207,4 +207,4 @@ let input_file filename =
     with
       End_of_file -> (close_in chin;acc)
   in
-  aux []
+  List.rev (aux [])

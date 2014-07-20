@@ -12,6 +12,7 @@ let cut str =
   let rec aux acc1 acc2 i =
     try
       match str.[i] with
+      | '\n' when acc1="" -> aux "" acc2 (i+1)
       | '\n' -> aux "" (acc1::acc2) (i+1)
       | c -> aux (acc1^(s c)) acc2 (i+1)
     with 
@@ -19,9 +20,24 @@ let cut str =
   in
   aux "" [] 0
 
+
+let handle f x =
+  try
+    f x	
+  with Parsing.Parse_error -> (false,"")
+
 let solve d str =
   let p = Html.createP d
-  and sl = List.map Js.string (Tools.bind (fun (_,s) -> cut s) (List.map Solve.solve (cut str)))
+  and sl = 
+    List.map 
+      Js.string 
+      (Tools.bind 
+	 (function
+	 | _,"" -> [] 
+	 | (_,s) -> cut s) 
+	 (List.map 
+	    (handle Solve.solve) 
+	    (cut str)))
   in
   List.iter
     (fun s -> 

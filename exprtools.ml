@@ -32,3 +32,14 @@ let rec print_expr = function
   | `Star e -> Printf.sprintf "(%s)+" (print_expr e)
   | `Conv e -> Printf.sprintf "(%s)~" (print_expr e)
 
+let print_comp = function
+  | `Geq -> ">="
+  | `Gt -> ">"
+  | `Leq -> "<="
+  | `Lt -> "<"
+  | `Incomp -> "<>"
+  | `Neq -> "=/="
+  | `Eq -> "="
+
+let print_eq (c,e,f) =
+  Printf.sprintf "%s %s %s" (print_expr e) (print_comp c) (print_expr f)

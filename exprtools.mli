@@ -28,6 +28,25 @@ val print_expr :
    as 'a) ->
   string
 
+(** Write a comparison as a string. *)
+val print_comp : 
+  [< `Geq | `Gt | `Leq | `Lt | `Incomp | `Neq | `Eq ] -> string
+
+(** Writes an equation as a string. *)
+val print_eq :
+  [< `Geq | `Gt | `Leq | `Lt | `Incomp | `Neq | `Eq ] *
+  ([< `Conc of 'a * 'a
+   | `Conv of 'a
+   | `Inter of 'a * 'a
+   | `Star of 'a
+   | `Un
+   | `Union of 'a * 'a
+   | `Var of string
+   | `Zero ]
+      as 'a) 
+  * 'a ->
+  string
+
 (** Parses a given string as an expression over strings. *)
 val get_string : string -> string Expr.expr
 

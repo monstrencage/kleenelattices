@@ -31,6 +31,7 @@
 %left PLUS 
 %left INTER
 %left DOT
+%left EGAL LEQ GEQ LT GT IMCOMP DUNNO DIFF  
 %nonassoc STAR PSTAR POWER
 
 
@@ -52,9 +53,9 @@ exp:
 	then `Zero 
 	else `Var $1 }
 | exp POWER                 { expand $1 $2 }
-| exp PLUS exp            { `Union($1,$3)}
-| exp INTER exp            { `Inter($1,$3)}
 | exp DOT exp             { `Conc($1,$3)}
+| exp INTER exp            { `Inter($1,$3)}
+| exp PLUS exp            { `Union($1,$3)}
 | exp STAR                  { `Union (`Un,`Star $1)}
 | exp PSTAR                  { `Star $1}
 | LPAR exp RPAR             { $2 }

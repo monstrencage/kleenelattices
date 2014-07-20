@@ -26,32 +26,33 @@ let inf simul se1 se2 e1 e2 =
 
 let solve bld inf s=
   let (c,e1,e2) = (get_eq s) in
+  let se1,se2 = (print_expr e1,print_expr e2) in
   let e1,e2 = (bld e1,bld e2) in
   let not (a,b) = (not a,b)
   and ( && ) (a,b) (c,d) = (a && c,b^d)
   in
   let res,b =
     match c with
-    | `Geq -> inf "e2" "e1" e2 e1
-    | `Leq -> inf "e1" "e2" e1 e2
-    | `Gt -> (not (inf "e1" "e2" e1 e2)) && inf "e2" "e1"  e2 e1
-    | `Lt -> inf "e1" "e2" e1 e2 && (not (inf "e2" "e1"  e2 e1))
+    | `Geq -> inf se2 se1 e2 e1
+    | `Leq -> inf se1 se2 e1 e2
+    | `Gt -> (not (inf se1 se2 e1 e2)) && inf se2 se1  e2 e1
+    | `Lt -> inf se1 se2 e1 e2 && (not (inf se2 se1  e2 e1))
     | `Incomp -> 
-      (not (inf "e1" "e2" e1 e2)) && 
-	(not (inf "e2" "e1" e2 e1)) 
+      (not (inf se1 se2 e1 e2)) && 
+	(not (inf se2 se1 e2 e1)) 
     | `Neq ->  
-      let a,b = (not (inf "e1" "e2" e1 e2)) 
+      let a,b = (not (inf se1 se2 e1 e2)) 
       in 
       if a 
       then (a,b) 
       else 
-	let c,d = (not (inf "e2" "e1" e2 e1))
+	let c,d = (not (inf se2 se1 e2 e1))
 	in (c,b^d)
-    | `Eq -> inf "e1" "e2"  e1 e2 && (inf "e2" "e1"  e2 e1)
+    | `Eq -> inf se1 se2  e1 e2 && (inf se2 se1  e2 e1)
   in
   (res,
-   Printf.sprintf "%s --------- %s\n%s\n\n" 
-     s (if res then "OK" else "Incorrect") b)
+   Printf.sprintf "%s %s %s --------- %s\n%s\n\n" 
+     se1 (print_comp c) se2 (if res then "OK" else "Incorrect") b)
 
 let handle f x =
   try
