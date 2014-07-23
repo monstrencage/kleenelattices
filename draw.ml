@@ -13,26 +13,19 @@
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation, Inc.,
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*)
-(** Direct constructions of LTS from expressions, 
-    and LTS simulation. *)
-
-(** Computes an LTS from an identity-free expression. *)
-val trad : string Expr.expr -> Tools.lts
-
-(** Tries to find a ground term of the first LTS that
-    is not recognised by the second LTS. In case of success, 
-    returns said term.
-    Otherwise returns [None]. *)
-val simul :
-  Tools.lts -> Tools.lts -> string Expr.ground option
-
-(** {3 Operators on LTS.} *)
-
-
-val union : Tools.lts -> Tools.lts -> Tools.lts
-val concat : Tools.lts -> Tools.lts -> Tools.lts
-val inter : Tools.lts -> Tools.lts -> Tools.lts
-val iter : Tools.lts -> Tools.lts
-
-(** Keeps only the accessible states of the LTS. *)
-val clean : Tools.lts -> Tools.lts
+let _ =
+  let e,proc,fdest = 
+    let e = ref "" 
+    and proc = ref (fun x -> x)
+    and fdest = ref "" in
+    Arg.parse 
+      ["-o",Arg.Set_string fdest,
+       "Set the destination name";
+       "-c",Arg.Unit (fun () -> proc:=Lts.clean),
+       "Clean the LTS before printing"
+      ] 
+      (fun s -> e:=s) "";
+    (Exprtools.get_string (!e)),!proc,(if !fdest = "" then Printf.sprintf "examples/expr_res_%.0f" (Unix.time ()) else !fdest)
+  in
+  let lts = proc (Lts.trad e) in
+  PrintLts.draw "" "png" lts fdest

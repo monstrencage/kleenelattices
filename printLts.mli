@@ -13,26 +13,6 @@
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation, Inc.,
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*)
-(** Direct constructions of LTS from expressions, 
-    and LTS simulation. *)
+(** Printing LTS. *)
 
-(** Computes an LTS from an identity-free expression. *)
-val trad : string Expr.expr -> Tools.lts
-
-(** Tries to find a ground term of the first LTS that
-    is not recognised by the second LTS. In case of success, 
-    returns said term.
-    Otherwise returns [None]. *)
-val simul :
-  Tools.lts -> Tools.lts -> string Expr.ground option
-
-(** {3 Operators on LTS.} *)
-
-
-val union : Tools.lts -> Tools.lts -> Tools.lts
-val concat : Tools.lts -> Tools.lts -> Tools.lts
-val inter : Tools.lts -> Tools.lts -> Tools.lts
-val iter : Tools.lts -> Tools.lts
-
-(** Keeps only the accessible states of the LTS. *)
-val clean : Tools.lts -> Tools.lts
+val draw : string -> string -> Tools.lts -> string -> unit
