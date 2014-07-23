@@ -208,16 +208,3 @@ let input_file filename =
       End_of_file -> (close_in chin;acc)
   in
   List.rev (aux [])
-
-let places (i,tr,fn) =
-  ISMap.fold
-    (fun c lst ->
-      ISet.union
-	(ISet.union c 
-	   (List.fold_left
-	      (fun acc (_,d) ->
-		ISet.union d acc)
-	      ISet.empty
-	      lst)))
-    tr
-    ISet.empty

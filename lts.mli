@@ -33,6 +33,3 @@ val union : Tools.lts -> Tools.lts -> Tools.lts
 val concat : Tools.lts -> Tools.lts -> Tools.lts
 val inter : Tools.lts -> Tools.lts -> Tools.lts
 val iter : Tools.lts -> Tools.lts
-
-(** Keeps only the accessible states of the LTS. *)
-val clean : Tools.lts -> Tools.lts

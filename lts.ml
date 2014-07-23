@@ -327,25 +327,3 @@ let simul (i1,l1,fn1) (i2,l2,fn2) =
   with ContreExemple x -> 
     (*print_newline ();*)Some x
 
-let clean (i,tr,f : lts) =
-  let step c (st,b) =
-    let next = List.map snd (get_def [] ISMap.find c tr) in
-    List.fold_left
-      (fun (st',b') c' -> 
-	if ISSet.mem c' st'
-	then (st',b')
-	else (ISSet.add c' st',ISSet.add c' b'))
-      (st,b)
-      next
-  in
-  let rec aux (st,b) = 
-    if ISSet.is_empty b
-    then st
-    else
-      aux
-	(ISSet.fold step b (st,ISSet.empty))
-  in
-  let i0 = ISSet.singleton (ISet.singleton i) in
-  let st = aux (i0,i0) in
-  (i,ISMap.filter (fun c _ -> ISSet.mem c st) tr,
-   ISSet.filter (fun c -> ISSet.mem c st) f)
