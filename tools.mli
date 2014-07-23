@@ -96,6 +96,7 @@ val compose : int IMap.t -> int IMap.t -> int IMap.t
 (** Returns the inverse of a bijective map. *)
 val rev : int IMap.t -> int IMap.t
 
+val places : lts -> ISet.t
 (** {3 Printing functions.} *)
 
 val printlist : ('a -> string) -> 'a list -> string

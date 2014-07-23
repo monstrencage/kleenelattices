@@ -72,18 +72,20 @@
 SOURCES = $(MLI) $(AUTRES) $(ML)
 
 MAIN = main.ml
-MLI = expr.mli exprtools.mli solve.mli tools.mli word.mli lts.mli 
+MLI = expr.mli exprtools.mli solve.mli tools.mli word.mli lts.mli printLts.mli
 #petri.mli printPetri.mli simul.mli unionFind.mli
-ML = exprtools.ml tools.ml word.ml lts.ml solve.ml
+ML = exprtools.ml tools.ml word.ml lts.ml solve.ml printLts.ml
 # unionFind.ml petri.ml printPetri.ml simul.ml
 AUTRES =  parser.mly lexer.mll
 WMAIN = wmain.mli wmain.ml
+DRAW= draw.ml
 
-INPUT = $(MLI) $(AUTRES) $(ML) $(MAIN) $(WMAIN)
+INPUT = $(MLI) $(AUTRES) $(ML) $(MAIN) $(DRAW) $(WMAIN)
 
 # The executable file to generate
 
-EXEC = solve
+NAME=rkl
+EXEC = solve draw
 WPAGE = solve_script
 
 
@@ -106,7 +108,7 @@ CAMLWEB = ocamlfind ocamlc -package js_of_ocaml -package js_of_ocaml.syntax -syn
 # LIBS=$(WITHGRAPHICS) $(WITHUNIX) $(WITHSTR) $(WITHNUMS) $(WITHTHREADS)\
 # $(WITHDBM)
 
-#LIBS=$(WITHSTR)
+LIBS=$(WITHUNIX)
 
 # Should be set to -custom if you use any of the libraries above
 # or if any C code have to be linked with your program
@@ -143,27 +145,28 @@ all:: std opt doc libs js
 dep : .depend.input .depend
 
 BMLI = $(filter %.mli,$(SMLIYL))
-BYTES = $(BMLI:.mli=.cmi) $(OBJS) $(EXEC).cma
-OPTS = $(OPTOBJS) $(OPTOBJS:.cmx=.o) $(EXEC).cmxa $(EXEC).a
+BYTES = $(BMLI:.mli=.cmi) $(OBJS) $(NAME).cma
+OPTS = $(OPTOBJS) $(OPTOBJS:.cmx=.o) $(NAME).cmxa $(NAME).a
+EXECOPT = $(EXEC:=.opt)
 
 install: std opt libs
-	cp $(EXEC).opt /usr/bin/$(EXEC)
-	mkdir -p /usr/lib/ocaml/solve
+	cp $(EXECOPT) /usr/bin/$(NAME)
+	mkdir -p /usr/lib/ocaml/$(NAME)
 	cp $(BYTES) $(OPTS) /usr/lib/ocaml/solve/
 
-opt : dep $(EXEC).opt
+opt : dep $(EXECOPT)
 
-doc : dep $(EXEC).html
+doc : dep $(NAME).html
 
-top : dep $(EXEC)_top
+top : dep $(NAME).top
 
-libs : dep $(EXEC).cma $(EXEC).cmxa
+libs : dep $(NAME).cma $(NAME).cmxa
 
 js : dep $(WPAGE).js
 	mkdir -p javascripts
 	mv $(WPAGE).js javascripts 
 
-archive : dep $(EXEC).tar.gz
+archive : dep $(NAME).tar.gz
 
 #ocamlc -custom other options graphics.cma other files -cclib -lgraphics -cclib -lX11
 #ocamlc -thread -custom other options threads.cma other files -cclib -lthreads
@@ -181,42 +184,48 @@ OPTOBJS = $(SMLYL:.ml=.cmx)
 INMLIY = $(INPUT:.mly=.ml)
 INLIYL = $(INMLIY:.mll=.ml) $($(filter %.mly,$(INPUT)):.mly=.mli)
 
-$(EXEC).tar.gz : $(EXEC).tar
-	gzip $(EXEC).tar;
-	mv $(EXEC).tar.gz $(EXEC).$$(date +%d.%m.%y_%H%M%S).tar.gz
+$(NAME).tar.gz : $(NAME).tar
+	gzip $(NAME).tar;
+	mv $(NAME).tar.gz $(NAME).$$(date +%d.%m.%y_%H%M%S).tar.gz
 
-$(EXEC).tar: $(EXEC)_src
-	tar -c $(EXEC)_src -f $(EXEC).tar
-	rm -rf $(EXEC)_src
+$(NAME).tar: $(NAME)_src
+	tar -c $(NAME)_src -f $(NAME).tar
+	rm -rf $(NAME)_src
 
-$(EXEC)_src : 
-	mkdir $(EXEC)_src
-	mkdir $(EXEC)_src/doc
-	cp $(SOURCES) $(MAIN) Makefile $(EXEC)_src/
+$(NAME)_src : 
+	mkdir -p $(NAME)_src
+	mkdir -p $(NAME)_src/doc
+	cp $(INPUT) Makefile $(NAME)_src/
 
-$(EXEC): $(OBJS) 
-	$(CAMLC) $(CUSTOM) -o $(EXEC) $(LIBS) $(OBJS) $(MAIN)
+solve : $(OBJS) 
+	$(CAMLC) $(CUSTOM) -o solve $(LIBS) $(OBJS) $(MAIN)
+
+draw : $(OBJS) 
+	$(CAMLC) $(CUSTOM) -o draw $(LIBS) $(OBJS) $(DRAW)
+
+solve.opt : $(OPTOBJS) 
+	$(CAMLOPT) $(CUSTOM) -o solve.opt $(LIBS:.cma=.cmxa) $(OPTOBJS) $(MAIN)
+
+draw.opt : $(OPTOBJS) 
+	$(CAMLOPT) $(CUSTOM) -o draw.opt $(LIBS:.cma=.cmxa) $(OPTOBJS) $(DRAW)
 
 #$(EXEC)_top : $(OBJSB)
 #	$(CAMLTOP) $(CUSTOM) -o $(EXEC)_top $(LIBS) $(OBJSB)
 
-$(EXEC)_top : $(OBJS)
-	$(CAMLTOP) $(CUSTOM) -o $(EXEC)_top $(LIBS) $(OBJS)
+$(NAME).top : $(OBJS)
+	$(CAMLTOP) $(CUSTOM) -o $(NAME)_top $(LIBS) $(OBJS)
 
-$(EXEC).cma : $(OBJS)
-	$(CAMLC) $(CUSTOM) -a -o $(EXEC).cma $(LIBS) $(OBJS)
+$(NAME).cma : $(OBJS)
+	$(CAMLC) $(CUSTOM) -a -o $(NAME).cma $(LIBS) $(OBJS)
 
-$(EXEC).cmxa : $(OPTOBJS)
-	$(CAMLOPT) -a -o $(EXEC).cmxa $(filter-out %.cma,$(LIBS)) $(OPTOBJS)
+$(NAME).cmxa : $(OPTOBJS)
+	$(CAMLOPT) -a -o $(NAME).cmxa $(filter-out %.cma,$(LIBS)) $(OPTOBJS)
 
-$(EXEC).html : $(OBJS)
-	$(CAMLDOC) $(CUSTOM) -o $(EXEC) -html -charset utf8 $(MLI)
+$(NAME).html : $(OBJS)
+	$(CAMLDOC) $(CUSTOM) -o $(NAME) -html -charset utf8 $(MLI)
 	mkdir -p doc/
 	mv *.html doc/
 	mv *.css doc/
-
-$(EXEC).opt: $(OPTOBJS)
-	$(CAMLOPT) -o $(EXEC).opt $(LIBS:.cma=.cmxa) $(OPTOBJS) $(MAIN)
 
 $(WPAGE).byte: $(OBJS)
 	$(CAMLWEB) $(LIBS) -o $(WPAGE).byte $(OBJS) $(WMAIN)
@@ -264,11 +273,8 @@ $(WPAGE).js: $(WPAGE).byte
 
 clean::
 	rm -f *.cm[iox] *~ .*~ *.o *.byte *.js #*#
-	rm -f $(EXEC)
-	rm -f $(EXEC).opt
-	rm -f $(EXEC)_top
-	rm -f $(EXEC).cma
-	rm -f $(EXEC).cmxa
+	rm -f $(EXEC) $(EXECOPT)
+	rm -f $(NAME)*
 
 .depend.input: Makefile
 	@echo -n '--Checking Ocaml input files: '
