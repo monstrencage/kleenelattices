@@ -77,7 +77,7 @@ MLI = expr.mli exprtools.mli solve.mli tools.mli word.mli lts.mli printLts.mli
 ML = exprtools.ml tools.ml word.ml lts.ml solve.ml printLts.ml
 # unionFind.ml petri.ml printPetri.ml simul.ml
 AUTRES =  parser.mly lexer.mll
-WMAIN = wmain.mli wmain.ml
+WMAIN = wmain.ml
 DRAW= draw.ml
 
 INPUT = $(MLI) $(AUTRES) $(ML) $(MAIN) $(DRAW) $(WMAIN)
@@ -228,7 +228,7 @@ $(NAME).html : $(OBJS)
 	mv *.css doc/
 
 $(WPAGE).byte: $(OBJS)
-	$(CAMLWEB) $(LIBS) -o $(WPAGE).byte $(OBJS) $(WMAIN)
+	$(CAMLWEB) -o $(WPAGE).byte $(filter-out printLts%,$(OBJS)) $(WMAIN)
 
 $(WPAGE).js: $(WPAGE).byte
 	js_of_ocaml $<

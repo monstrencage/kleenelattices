@@ -245,6 +245,64 @@ let trad(* chout *)=
       (printlts res);*)
     res)
 
+let clean (i,tr,f : lts) =
+  let step c (st,b) =
+    let next = List.map snd (get_def [] ISMap.find c tr) in
+    List.fold_left
+      (fun (st',b') c' -> 
+	if ISSet.mem c' st'
+	then (st',b')
+	else (ISSet.add c' st',ISSet.add c' b'))
+      (st,b)
+      next
+  in
+  let rec aux (st,b) = 
+    if ISSet.is_empty b
+    then st
+    else
+      aux
+	(ISSet.fold step b (st,ISSet.empty))
+  in
+  let i0 = ISSet.singleton (ISet.singleton i) in
+  let st = aux (i0,i0) in
+  (i,ISMap.filter (fun c _ -> ISSet.mem c st) tr,
+   ISSet.filter (fun c -> ISSet.mem c st) f)
+
+let tradOpt(* chout *)=
+  let rec aux k = function
+    | `Var a ->
+      let i = ISet.singleton k
+      and o = ISet.singleton (k+1) in
+      let eq = IMap.singleton k k 
+      and ti = IMap.singleton k (SISet.singleton (a,k+1)) in
+      let t = ISMap.singleton i [(eq,ti),o] in
+      ((k,t,ISSet.singleton o),k+2)
+    | `Union (e,f) ->
+      let (l1,k1) = aux k e in
+      let (l2,k2) = aux k1 f in
+      (union l1 l2, k2)
+    | `Conc (e,f) -> 
+      let (l1,k1) = aux k e in
+      let (l2,k2) = aux k1 f in
+      (concat l1 l2, k2)
+    | `Inter (e,f) -> 
+      let (l1,k1) = aux k e in
+      let (l2,k2) = aux k1 f in
+      (clean (inter l1 l2), k2)
+    | `Star e -> 
+      let (l1,k1) = aux k e in
+      (iter l1, k1)
+    | `Conv _ | `Un | `Zero ->
+      failwith "Lts.trad : unsupported operation"
+  in
+  (fun e -> 
+    let res = fst (aux 0 e) 
+    in 
+(*    Printf.fprintf chout "Automaton for %s :\n%s\n" 
+      (Exprtools.print_expr e)
+      (printlts res);*)
+    res)
+
 let ltsfninf fn1 fn2 (mk,ms) =
   if ISSet.mem mk fn1
   then MSet.exists (fun m -> ISSet.mem (dom m) fn2) ms
@@ -326,26 +384,3 @@ let simul (i1,l1,fn1) (i2,l2,fn2) =
     None
   with ContreExemple x -> 
     (*print_newline ();*)Some x
-
-let clean (i,tr,f : lts) =
-  let step c (st,b) =
-    let next = List.map snd (get_def [] ISMap.find c tr) in
-    List.fold_left
-      (fun (st',b') c' -> 
-	if ISSet.mem c' st'
-	then (st',b')
-	else (ISSet.add c' st',ISSet.add c' b'))
-      (st,b)
-      next
-  in
-  let rec aux (st,b) = 
-    if ISSet.is_empty b
-    then st
-    else
-      aux
-	(ISSet.fold step b (st,ISSet.empty))
-  in
-  let i0 = ISSet.singleton (ISet.singleton i) in
-  let st = aux (i0,i0) in
-  (i,ISMap.filter (fun c _ -> ISSet.mem c st) tr,
-   ISSet.filter (fun c -> ISSet.mem c st) f)

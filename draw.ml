@@ -16,16 +16,18 @@
 let _ =
   let e,proc,fdest = 
     let e = ref "" 
-    and proc = ref (fun x -> x)
+    and proc = ref Lts.trad
     and fdest = ref "" in
     Arg.parse 
       ["-o",Arg.Set_string fdest,
        "Set the destination name";
-       "-c",Arg.Unit (fun () -> proc:=Lts.clean),
+       "-c",Arg.Unit (fun () -> proc:=(fun e -> Lts.clean (Lts.trad e))),
+       "Clean the LTS before printing";
+       "-opt",Arg.Unit (fun () -> proc:=(fun e -> (Lts.tradOpt e))),
        "Clean the LTS before printing"
       ] 
       (fun s -> e:=s) "";
     (Exprtools.get_string (!e)),!proc,(if !fdest = "" then Printf.sprintf "examples/expr_res_%.0f" (Unix.time ()) else !fdest)
   in
-  let lts = proc (Lts.trad e) in
+  let lts = proc e in
   PrintLts.draw "" "png" lts fdest

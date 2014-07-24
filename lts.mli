@@ -19,6 +19,9 @@
 (** Computes an LTS from an identity-free expression. *)
 val trad : string Expr.expr -> Tools.lts
 
+(** Computes an accessible LTS from an identity-free expression. *)
+val tradOpt : string Expr.expr -> Tools.lts
+
 (** Tries to find a ground term of the first LTS that
     is not recognised by the second LTS. In case of success, 
     returns said term.
