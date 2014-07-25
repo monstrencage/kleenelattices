@@ -3,28 +3,29 @@
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
 <meta content="text/html; charset=utf8" http-equiv="Content-Type">
-<link rel="Start" href="solve.html">
+<link rel="Start" href="rkl.html">
 <link rel="previous" href="Solve.html">
 <link rel="next" href="Word.html">
-<link rel="Up" href="solve.html">
-<link title="Index of types" rel=Appendix href="solve_types.html">
-<link title="Index of exceptions" rel=Appendix href="solve_exceptions.html">
-<link title="Index of values" rel=Appendix href="solve_values.html">
-<link title="Index of modules" rel=Appendix href="solve_modules.html">
+<link rel="Up" href="rkl.html">
+<link title="Index of types" rel=Appendix href="rkl_types.html">
+<link title="Index of exceptions" rel=Appendix href="rkl_exceptions.html">
+<link title="Index of values" rel=Appendix href="rkl_values.html">
+<link title="Index of modules" rel=Appendix href="rkl_modules.html">
 <link title="Expr" rel="Chapter" href="Expr.html">
 <link title="Exprtools" rel="Chapter" href="Exprtools.html">
 <link title="Solve" rel="Chapter" href="Solve.html">
 <link title="Tools" rel="Chapter" href="Tools.html">
 <link title="Word" rel="Chapter" href="Word.html">
-<link title="Lts" rel="Chapter" href="Lts.html"><link title="Usefull modules." rel="Section" href="#3_Usefullmodules">
+<link title="Lts" rel="Chapter" href="Lts.html">
+<link title="PrintLts" rel="Chapter" href="PrintLts.html"><link title="Usefull modules." rel="Section" href="#3_Usefullmodules">
 <link title="Types and exceptions." rel="Section" href="#3_Typesandexceptions">
 <link title="Some basic functions." rel="Section" href="#3_Somebasicfunctions">
-<link title="Printing functions." rel="Section" href="#3_Printingfunctions">
+<link title="Input function." rel="Section" href="#3_Inputfunction">
 <title>Tools</title>
 </head>
 <body>
 <div class="navbar"><a class="pre" href="Solve.html" title="Solve">Previous</a>
-&nbsp;<a class="up" href="solve.html" title="Index">Up</a>
+&nbsp;<a class="up" href="rkl.html" title="Index">Up</a>
 &nbsp;<a class="post" href="Word.html" title="Word">Next</a>
 </div>
 <h1>Module <a href="type_Tools.html">Tools</a></h1>
@@ -150,8 +151,10 @@ Functional composition of maps.<br>
 <pre><span id="VALrev"><span class="keyword">val</span> rev</span> : <code class="type">int IMap.t -> int IMap.t</code></pre><div class="info ">
 Returns the inverse of a bijective map.<br>
 </div>
-<br>
+
+<pre><span id="VALplaces"><span class="keyword">val</span> places</span> : <code class="type"><a href="Tools.html#TYPElts">lts</a> -> ISet.t</code></pre><div class="info ">
 <h3 id="3_Printingfunctions">Printing functions.</h3><br>
+</div>
 
 <pre><span id="VALprintlist"><span class="keyword">val</span> printlist</span> : <code class="type">('a -> string) -> 'a list -> string</code></pre>
 <pre><span id="VALprintimap"><span class="keyword">val</span> printimap</span> : <code class="type">('a -> string) -> 'a IMap.t -> string</code></pre>
@@ -162,4 +165,10 @@ Returns the inverse of a bijective map.<br>
 <pre><span id="VALprintmset"><span class="keyword">val</span> printmset</span> : <code class="type">MSet.t -> string</code></pre>
 <pre><span id="VALprinttrset"><span class="keyword">val</span> printtrset</span> : <code class="type">TrSet.t -> string</code></pre>
 <pre><span id="VALprinttrans"><span class="keyword">val</span> printtrans</span> : <code class="type"><a href="Tools.html#TYPEtrans">trans</a> * <a href="Tools.html#TYPEmarquage">marquage</a> -> string</code></pre>
-<pre><span id="VALprintlts"><span class="keyword">val</span> printlts</span> : <code class="type"><a href="Tools.html#TYPElts">lts</a> -> string</code></pre></body></html>
+<pre><span id="VALprintlts"><span class="keyword">val</span> printlts</span> : <code class="type"><a href="Tools.html#TYPElts">lts</a> -> string</code></pre><br>
+<h3 id="3_Inputfunction">Input function.</h3><br>
+
+<pre><span id="VALinput_file"><span class="keyword">val</span> input_file</span> : <code class="type">string -> string list</code></pre><div class="info ">
+List of the lines in a file.<br>
+</div>
+</body></html>
