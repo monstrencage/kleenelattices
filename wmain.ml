@@ -2,6 +2,7 @@ module Html = Dom_html
 
 let (>>=) = Lwt.bind
 
+let initmsg = "(a|b)+.C & d > d & a.b.C & (d|a)\n"
 
 let cut str =
   let s c = 
@@ -63,6 +64,7 @@ let onload _ =
   let txtcell = Html.createTd d in
   let textbox = Html.createTextarea d in
   textbox##rows <- 20 ; textbox##cols <- 50;
+  textbox##value <- Js.string initmsg;
   let preview = Html.createTd d in
   preview##style##border <- Js.string "1px black dashed";
   preview##style##padding <- Js.string "5px";
