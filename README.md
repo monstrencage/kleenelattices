@@ -24,7 +24,7 @@ If you want to produce a library, the command :
 $ make libs
 ```
 
-You can find the complete documentation of the project [there](http://monstrencage.github.io/kleenelattices/doc/solve.html).
+You can find the complete documentation of the project [there](http://monstrencage.github.io/kleenelattices/doc/rkl.html).
 
 You can also install both the libraries and the executable program :
 ```shell
