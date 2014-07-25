@@ -19,10 +19,10 @@ open Exprtools
 
 let inf simul se1 se2 e1 e2 =
   match simul e1 e2 with
-  | None -> (true,Printf.sprintf "\n%s <= %s : true" se1 se2)
+  | None -> (true,Printf.sprintf "\n%s <= %s -- true" se1 se2)
   | Some l -> 
     let w = print_expr l
-    in (false,Printf.sprintf "\n%s <= %s : false (%s)" se1 se2 w)
+    in (false,Printf.sprintf "\n%s <= %s -- false : %s" se1 se2 w)
 
 let solve bld inf s=
   let (c,e1,e2) = (get_eq s) in
