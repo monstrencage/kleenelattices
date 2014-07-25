@@ -1,0 +1,281 @@
+/*
+style.css
+--------
+
+Paul Brunet
+*/
+/*body
+{
+    background-color:#99CCF;
+}*/
+
+#welcome
+{
+    width:70%;
+    margin:auto;
+    font-size:2.5em;
+}
+
+#tampon
+{
+    height:150px;   
+    text-align:right;
+}
+
+#top
+{    
+    position:absolute;
+    top:0px;
+    left:0px;
+    width:100%;
+    height:150px;
+    border: none;
+    border-radius:0px;
+/*    background-color: #687F9B;*/
+    margin: 0px;
+}
+
+header h1
+{    
+/*    color: maroon;*/
+    font-size: 3em;
+    font-family: "Arial Black",Impact,Arial;
+    font-weight: bold;
+    text-align: center;
+}
+
+.ico_categorie
+{
+/*    vertical-align: middle;*/
+    margin-right: 8px;
+}
+
+.nav_ico
+{
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.box
+{
+    background-color:#3399CC; /* Pour les anciens navigateurs 
+    background-color: rgba(24,24,24,0.8);*/
+    border-radius: 5px;
+    box-shadow: 0px 4px 4px #1c1a19;
+    color:white;
+}
+
+#photo
+{
+    margin-left:85%;
+    position:absolute;
+/*    align:right;*/
+    display: inline-block;   
+    vertical-align:top;
+}
+
+nav
+{
+/*    float:left;
+    background-color: #687F9B;
+    border-radius: 10px;*/
+    padding: 5px;
+    width : 13%;
+    top:170px;
+    left:5px;
+    position:fixed;    
+    border-radius: 10px;
+/*    box-shadow: 6px 6px 5px grey;*/
+}
+
+nav a
+{
+    color : white;
+    font-weight : normal;
+    textdecoration : none;
+}
+
+/*section header
+{
+    border: 10px none;
+    background-color: #687F9B;
+    border-radius: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-up: 3px;
+    margin-down: 10px;
+}*/
+
+section
+{
+    width: 70%;
+    margin: auto;
+}
+
+section header h2
+{
+    width: 50%;
+}
+
+h2
+{
+    font-size: 2em;
+}
+
+section header .sectitle
+{
+    width: 50%;
+}
+
+.sectitle
+{
+    font-size: 2em;
+}
+
+figure
+{
+    text-align: center;
+}
+
+figcaption
+{
+    font-style: italic;
+}
+
+.intro
+{
+    font-style: italic;
+    font-weight: bold;
+}
+
+.lorem
+{
+    font-style: italic;
+    color: #C90E78;
+}
+
+/*premier paragraphe d'une sous-section
+h2 + .totop + p 
+{
+    font-style: italic;
+}*/
+
+dt
+{
+    font-style: italic;
+    font-weight: bold;
+}
+
+.totop
+{
+    display: inline-block;
+    border :0;
+    font-size: .5em;
+    text-align: right;
+}
+
+
+section header
+{
+    margin-top: 15px;
+    border-radius: 5px;
+    position: relative;
+    margin-bottom: 25px;
+}
+
+section header h2
+{
+/*    position: absolute;*/
+    bottom: 0;
+/*
+    border-radius: 5px 5px 5px 5px;
+*/
+    width: 99.5%;
+    height: 44px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 4px;
+/*    background-color: rgb(24,24,24);  Pour les anciens navigateurs 
+    background-color: rgba(24,24,24,0.8);*/
+    color: white;
+    font-weight:bold;
+    font-size: 2em;
+}
+
+.bouton_rouge
+{
+    display: inline-block;
+    height: 25px;
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    background: url('Images/fond_degraderouge.png') repeat-x;
+    border: 1px solid #760001;
+    border-radius: 5px;
+    font-size: 1.2em;
+    text-align: center;
+    font-weight:normal;
+    padding: 3px 8px 0px 8px;
+    color: white;
+    text-decoration: none;
+    font-size: .5em;
+}
+
+.bouton_rouge img
+{
+    border: 0;
+}
+
+/*.bouh
+{
+    font-size: .2em;
+}
+
+.bouh:hover
+{
+    font-size: 3em;
+    color: red;
+    background-color: green;
+}*/
+
+footer
+{
+    font-style:italic;
+    text-align:center;
+}
+
+.wip
+{
+    font-weight:bold;
+    text-align: center;
+/*    color:yellow;*/
+}
+
+#logos
+{
+    text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+pre {
+  width: 100%;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  overflow: auto;
+  background-color: rgba(0,0,0,.2);
+}
+
+code {
+  padding: 1px;
+  margin: 0 3px;
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  background-color: rgba(0,0,0,.2);
+}
+
+pre code {
+  display: block;
+  box-shadow: none;
+  background-color: rgba(0,0,0,0);
+}
