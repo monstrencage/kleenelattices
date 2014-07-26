@@ -34,7 +34,7 @@ let printInit n0 (c:marquage) (e,_ : trans) =
       with Not_found -> 
 	let i' = n0 + cantor (i, k) in
 	(k,Printf.sprintf
-	  "%s%d -> %d[arrowhead=\"none\"];\n"
+	  "%s%d -> %d[style = \"dotted\";arrowhead=\"none\"];\n"
 	  acc i i',add_set k i' pset))
     c
     
@@ -84,35 +84,18 @@ let printInterm chout k ps =
     end
 
 let printFn chout k ps =
-  if ISet.cardinal ps = 1
-  then
-  ISet.iter
-    (fun i ->
-      Printf.fprintf 
-	chout 
-	"%d [label=\"%d\";shape=doublecircle];\n" 
-	i i)
-    ps
-  else
-    begin
-      Printf.fprintf chout
-	"subgraph cluster%d {\nnode [shape=doublecircle];\n" k;
-      ISet.iter
-	(fun i ->
-	  Printf.fprintf 
-	    chout 
-	    "%d [label=\"%d\"];\n" 
-	    i i)
-	ps;
-      Printf.fprintf chout "}\n"  
-    end
+  Printf.fprintf 
+    chout 
+    "Fn%d [label=\"%s\";shape=rectangle];\n" 
+    k (printiset ps)
+
 let draw opts format (i,tr,fn : lts) filename =
-  let chout = open_out (filename^".dot") in
+  let chout = open_out (filename^".gv") in
   Printf.fprintf chout "digraph structs {\nnode [shape=circle];\n";
   let states = places (i,tr,fn) in
   let n0 = ISet.max_elt states +1 in
-  let stdstates = ISSet.fold (fun fn acc -> ISet.diff acc fn) 
-    fn
+  let stdstates = (*ISSet.fold (fun fn acc -> ISet.diff acc fn) 
+    fn*)
     (ISet.remove i states)
   in
   let nbtr,codetr,interm =
@@ -148,7 +131,7 @@ let draw opts format (i,tr,fn : lts) filename =
   Printf.fprintf chout " }";
   close_out chout;
   let cmd = 
-    Printf.sprintf "dot %s %s.dot -T%s > %s.%s" opts 
+    Printf.sprintf "dot %s \"%s.gv\" -T%s > \"%s.%s\"" opts 
       filename format filename format
   in
   let _ = Printf.printf "%s\n" cmd;Unix.system cmd

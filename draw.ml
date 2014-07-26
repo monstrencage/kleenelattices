@@ -27,7 +27,7 @@ let _ =
        "Clean the LTS before printing"
       ] 
       (fun s -> e:=s) "";
-    (Exprtools.get_string (!e)),!proc,(if !fdest = "" then Printf.sprintf "examples/expr_res_%.0f" (Unix.time ()) else !fdest)
+    (Exprtools.get_string (!e)),!proc,(if !fdest = "" then Printf.sprintf "examples/expr_%s" (!e) (*Unix.time ()*) else !fdest)
   in
   let lts = proc e in
   PrintLts.draw "" "png" lts fdest
