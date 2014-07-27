@@ -126,6 +126,19 @@ let par t1l t2l =
     []
     t1l
 
+let states (_,t,_ : lts) : ISSet.t =
+  ISMap.fold
+    (fun p lst ->
+      ISSet.union
+	(ISSet.add
+	   p
+	   (List.fold_left
+	      (fun acc (_,q) -> ISSet.add q acc)
+	      ISSet.empty
+	      lst)))
+    t
+    ISSet.empty
+
 let inter (i1,t1,o1 as l1 : lts) (i2,t2,o2 as l2 : lts) : lts =
   assert (distinct l1 l2);
   let i = i1
@@ -177,7 +190,7 @@ let inter (i1,t1,o1 as l1 : lts) (i2,t2,o2 as l2 : lts) : lts =
 	    ISMap.add (ISet.union o1 m2) o1m2)
 	  t2'
       )
-      o1
+      (states l1)
       ISMap.empty
   and to2 = 
     ISSet.fold
@@ -194,7 +207,7 @@ let inter (i1,t1,o1 as l1 : lts) (i2,t2,o2 as l2 : lts) : lts =
 	    ISMap.add (ISet.union o2 m1) o2m1)
 	  t1'
       )
-      o2
+      (states l2)
       ISMap.empty
   in
   let tm =
