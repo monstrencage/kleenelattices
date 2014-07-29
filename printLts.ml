@@ -29,7 +29,7 @@ let printInit n0 (c:marquage) (e,_ : trans) =
       try
 	let i' = n0 + cantor (IMap.find i e, k) in
 	(k,Printf.sprintf
-	  "%s%d -> %d[arrowhead=\"none\"];\n"
+	  "%s%d -> %d[arrowtail=\"crow\";arrowhead=\"none\"];\n"
 	  acc i i',add_set k i' pset)
       with Not_found -> 
 	let i' = n0 + cantor (i, k) in
@@ -37,6 +37,8 @@ let printInit n0 (c:marquage) (e,_ : trans) =
 	  "%s%d -> %d[style = \"dotted\";arrowhead=\"none\"];\n"
 	  acc i i',add_set k i' pset))
     c
+
+(*none, normal, inv, dot, odot, invdot, invodot, tee, empty, invempty, open, halfopen, diamond, odiamond, box, obox, crow*)
     
 let printTranche n0 (_,t : trans) (k,acc,pset) =
     (k+1,

@@ -21,6 +21,14 @@ let mergeint _ i j =
   | Some i,None | None,Some i -> Some i
   | _ -> failwith "mergeint : conflict"
 
+let mergeint2 _ i j =
+  match (i,j) with 
+  | None , None -> None
+  | Some i,None | None,Some i -> Some i
+  | Some i,Some j when i = j -> Some i
+  | _ -> failwith "mergeint : conflict"
+
+
 let mergetr _ t1 t2 =
   match (t1,t2) with
   | None,None -> None
@@ -398,3 +406,85 @@ let simul (i1,l1,fn1) (i2,l2,fn2) =
     None
   with ContreExemple x -> 
     Some x
+
+let is_in trc ((a,t),c') =
+  List.exists 
+    (fun ((b,u),d) -> 
+      IMap.equal ( = ) b a &&
+	IMap.equal SISet.equal t u &&
+	ISet.equal c' d)
+    trc
+
+
+let decomposed (i,tr,f : lts) =
+  let trans p c ((a,t),c') =
+    let b =
+      (IMap.filter (fun _ q -> p=q) a)
+    and u = IMap.singleton p (IMap.find p t) in
+    ((b,u),ISet.union (ISet.diff c (dom b)) (img u))
+  in
+  ISMap.for_all
+    (fun c lst ->
+      List.for_all
+	(fun ((a,t),c') ->
+	  ISet.for_all
+	    (fun p -> 
+	      if is_in lst (trans p c ((a,t),c'))
+	      then true
+	      else 
+		(Printf.printf "pbm with %s %s : can't find %s\n"
+		   (printiset c)
+		   (printtrans ((a,t),c'))
+		   (printtrans (trans p c ((a,t),c')));
+		 false))
+	    (dom t))
+	lst)
+    tr
+      
+let complete (i,tr,fn : lts) =
+  let compat c0 ((a1,t1),c1) ((a2,t2),c2) =
+    IMap.for_all 
+      (fun p ap -> 
+	try ap = IMap.find p a2
+	with Not_found -> true )
+      a1
+    &&
+    IMap.for_all 
+      (fun p sis -> 
+	try SISet.equal sis (IMap.find p t2)
+	with Not_found -> true )
+      t1
+  in
+  let combine c0 ((a1,t1),c1) ((a2,t2),c2) =
+    let unchanged =
+      ISet.filter (fun p -> 
+	try
+	  let _ = IMap.find p a1 in
+	  false
+	with
+	  Not_found -> 
+	    try
+	      let _ = IMap.find p a2 in
+	      false
+	    with
+	      Not_found -> true) c0
+    in
+    ((IMap.merge mergeint2 a1 a2,
+      IMap.merge mergesis t1 t2),
+     ISet.union 
+       unchanged 
+       (ISet.union (img t1) (img t2)))
+  in
+  ISMap.for_all
+    (fun c lst ->
+      List.for_all
+	(fun t1 ->
+	  List.for_all 
+	    (fun t2 ->
+	      if compat c t1 t2
+	      then is_in lst (combine c t1 t2)
+	      else true)
+	    lst)
+	lst)
+    tr
+      

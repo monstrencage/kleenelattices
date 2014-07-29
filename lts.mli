@@ -39,3 +39,7 @@ val iter : Tools.lts -> Tools.lts
 
 (** Keeps only the accessible states of the LTS. *)
 val clean : Tools.lts -> Tools.lts
+
+val decomposed : Tools.lts -> bool
+
+val complete : Tools.lts -> bool
