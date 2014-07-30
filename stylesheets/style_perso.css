@@ -209,7 +209,7 @@ section header h2
     position: absolute;
     right: 5px;
     bottom: 5px;
-    background: url('Images/fond_degraderouge.png') repeat-x;
+    background: url('../images/fond_degraderouge.png') repeat-x;
     border: 1px solid #760001;
     border-radius: 5px;
     font-size: 1.2em;
