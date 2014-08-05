@@ -70,11 +70,6 @@ let solve_file bld inf filename fdest =
        (input_file filename);
   close_out chout
 
-(*let inf = inf Lts.simul
-
-let solve = solve Lts.trad inf
-
-let solve_file = solve_file Lts.trad inf*)
 let inf = inf Petri.simul
 
 let solve = solve Petri.trad inf

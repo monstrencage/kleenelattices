@@ -13,39 +13,6 @@
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation, Inc.,
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.*)
-(*let _ =
-  let e,proc,fdest,test = 
-    let e = ref "" 
-    and proc = ref Lts.trad
-    and fdest = ref "" 
-    and test = ref false in
-    Arg.parse 
-      ["-o",Arg.Set_string fdest,
-       "Set the destination name";
-       "-c",Arg.Unit (fun () -> proc:=(fun e -> Lts.clean (Lts.trad e))),
-       "Clean the LTS before printing";
-       "-opt",Arg.Unit (fun () -> proc:=(fun e -> (Lts.tradOpt e))),
-       "Clean the LTS before printing";
-       "-t",Arg.Set test,
-       "Test wether the LTS is saturated"
-      ] 
-      (fun s -> e:=s) "";
-    (Exprtools.get_string (!e)),
-    !proc,
-    (if !fdest = "" 
-     then Printf.sprintf "examples/expr_%s" (!e) (*Unix.time ()*) 
-     else !fdest),
-    !test
-  in
-  let lts = proc e in
-  if test
-  then 
-    Printf.printf "Test :%s\ndecomposed ---- %b\ncomplete ---- %b.\n"
-      (Exprtools.print_expr e)
-      (Lts.decomposed lts)
-      (Lts.complete lts);
-  PrintLts.draw "" "png" lts fdest*)
-
 let _ =
   let e,proc,fdest,test = 
     let e = ref "" 
