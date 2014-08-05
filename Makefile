@@ -74,8 +74,8 @@ SOURCES = $(MLI) $(AUTRES) $(ML)
 MAIN = main.ml
 MLI = expr.mli exprtools.mli solve.mli tools.mli word.mli lts.mli printLts.mli
 #petri.mli printPetri.mli simul.mli unionFind.mli
-ML = exprtools.ml tools.ml word.ml lts.ml solve.ml printLts.ml
-# unionFind.ml petri.ml printPetri.ml simul.ml
+ML = exprtools.ml tools.ml word.ml lts.ml petri.ml printPetri.ml solve.ml printLts.ml
+# unionFind.ml printPetri.ml simul.ml
 AUTRES =  parser.mly lexer.mll
 WMAIN = wmain.ml
 DRAW= draw.ml

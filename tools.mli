@@ -37,7 +37,14 @@ module SISet : Set.S with type elt = string * int
 (** Sets of transitions, as triples. *)
 module TrSet : Set.S with type elt = int * string * int
 
+(** Sets of petri transitions. *)
+module PTrSet : Set.S with type elt = ISet.t * SISet.t
+
 (** {3 Types and exceptions.}*)
+
+(** Petri transitions *)
+type ptrans = ISet.t * SISet.t
+
 (** Alias for ISet.t*)
 type marquage = ISet.t
 

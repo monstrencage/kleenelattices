@@ -110,6 +110,16 @@ module Descriptor = struct
     fst (union i j eq ())
 end*)
 
+type ptrans = ISet.t * SISet.t
+
+module PTrSet = Set.Make
+  (struct type t = ptrans
+	  let compare (a,b) (c,d) =
+	    match ISet.compare a c with
+	    | 0 -> SISet.compare b d
+	    | k -> k
+   end)
+
 let eqstates eq1 eq2 m = 
   ISet.for_all 
     (fun i -> 

@@ -280,3 +280,42 @@ let rec get_expr (i,w,o) =
 	     end)
   in
   e
+
+let nu (tr : ptrans list) k p =
+  fst
+    (List.fold_left
+       (fun (l,b) (s,t) -> 
+	 if b 
+	 then (l,b)
+	 else
+	   if l > k && ISet.mem p s
+	   then (l,true)
+	   else (l+1,false))
+       (0,false)
+       tr)
+
+let graph tr =
+(*  Printf.printf "graph";*)
+  let n = List.length tr in
+  let rec nu p k = function
+    | [] -> n
+    | (s,t)::lst -> 
+      if ISet.mem p s 
+      then k
+      else nu p (k+1) lst
+  in
+  let rec aux e k = function
+    | [] -> (0,e,n)
+    | (s,t)::lst ->
+      aux
+	(SISet.fold
+	   (fun (x,p) acc ->
+	     Tools.TrSet.add (k,x, nu p (k+1) lst) acc)
+	   t e)
+	(k+1)
+	lst
+  in
+  let w = 
+    aux Tools.TrSet.empty 0 tr
+  in
+(*  Printf.printf "ok\n";*) w

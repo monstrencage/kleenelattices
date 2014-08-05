@@ -37,6 +37,9 @@ val close : partword -> word
 (** Converts a list of transitions into a word. *)
 val build_word : Tools.trans list -> word
 
+(** Plop *)
+val graph : Tools.ptrans list -> word
+
 (** Prints a word. *)
 val print_word : word -> string
 
