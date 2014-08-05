@@ -18,33 +18,12 @@
 (** Type of words. *)
 type word = int * Tools.TrSet.t * int
 
-(** Type of partial words. *)
-type partword = int * Tools.TrSet.t * int Tools.IMap.t
-
-(** Empty word. *)
-val init : int -> partword
-
-(** Reads a partial word according to some LTS transition. *)
-val read : partword -> Tools.readstate -> Tools.trans 
-  -> Tools.readstateset
-
-(** Updates a partial word with a new LTS transition. *)
-val evolve_word : partword -> Tools.trans -> partword
-
-(** Closes a partial word, by merging all actives branches. *)
-val close : partword -> word
-
 (** Converts a list of transitions into a word. *)
-val build_word : Tools.trans list -> word
-
-(** Plop *)
 val graph : Tools.ptrans list -> word
 
 (** Prints a word. *)
 val print_word : word -> string
 
-(** Prints a partword. *)
-val printpartword : partword -> string
 
 (** Converts a word into an expression. *)
 val get_expr : word -> string Expr.ground

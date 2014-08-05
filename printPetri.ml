@@ -58,7 +58,7 @@ let draw opts format (p,t,i,f : Petri.t) filename =
   let stdstates = (ISet.remove i states)
   in
   let ntr,codetr =
-    PTrSet.fold printTrans t (n0,"")
+    Trans.fold printTrans t (n0,"")
   in
   Printf.fprintf chout "digraph structs {\nnode [shape=circle];\n";
   Printf.fprintf 

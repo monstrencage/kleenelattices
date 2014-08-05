@@ -72,9 +72,10 @@
 SOURCES = $(MLI) $(AUTRES) $(ML)
 
 MAIN = main.ml
-MLI = expr.mli exprtools.mli solve.mli tools.mli word.mli lts.mli printLts.mli
-#petri.mli printPetri.mli simul.mli unionFind.mli
-ML = exprtools.ml tools.ml word.ml lts.ml petri.ml printPetri.ml solve.ml printLts.ml
+MLI = expr.mli exprtools.mli solve.mli tools.mli petri.mli printPetri.mli word.mli
+#petri.mli printPetri.mli simul.mli unionFind.mli lts.mli printLts.mli
+ML = exprtools.ml tools.ml word.ml petri.ml printPetri.ml solve.ml
+# lts.ml printLts.ml
 # unionFind.ml printPetri.ml simul.ml
 AUTRES =  parser.mly lexer.mll
 WMAIN = wmain.ml
@@ -228,7 +229,7 @@ $(NAME).html : $(OBJS)
 	mv *.css doc/
 
 $(WPAGE).byte: $(OBJS)
-	$(CAMLWEB) -o $(WPAGE).byte $(filter-out printLts%,$(OBJS)) $(WMAIN)
+	$(CAMLWEB) -o $(WPAGE).byte $(filter-out print%,$(OBJS)) $(WMAIN)
 
 $(WPAGE).js: $(WPAGE).byte
 	js_of_ocaml $<
