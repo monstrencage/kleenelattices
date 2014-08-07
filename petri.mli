@@ -42,5 +42,6 @@ val read : Tools.readstate -> Tools.ptrans -> Tools.Trans.t -> Tools.MSet.t
 (** Tries to find a ground term recognised by the first automaton
     that is not recognised by the second. In case of success, 
     returns said term.
-    Otherwise returns [None]. *)
-val simul : t -> t -> string Expr.ground option
+    Otherwise returns [None]. 
+    It also returns the number of pairs examined. *)
+val simul : t -> t -> int * string Expr.ground option

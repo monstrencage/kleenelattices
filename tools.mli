@@ -49,8 +49,8 @@ type marquage = ISet.t
 type readstate = int IMap.t
 
 (** Exception to be raised when a ground term proving 
-    non-inclusion has een found. *)
-exception ContreExemple of string Expr.ground
+    non-inclusion has been found. *)
+exception ContreExemple of int * string Expr.ground
 
 (** {3 Some basic functions.} *)
 

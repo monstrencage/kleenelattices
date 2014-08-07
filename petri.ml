@@ -253,18 +253,18 @@ let simul (p1,t1,i1,f1 : t) (p2,t2,i2,f2 : t) =
 	    let (c',e') = step (c,e) tr in
 	    if good (c',e') 
 	    then aux (tr::path) acc (c',e')
-	    else raise (ContreExemple (get_word (tr::path))))
+	    else raise (ContreExemple (LMSet.cardinal acc,get_word (tr::path))))
 	  (Trans.filter (fun (s,_) -> ISet.subset s c) t1)
 	  (LMSet.add (c,e) sim)
       end
   in
   try
-    let _ =
+    let s =
       aux 
 	[]
 	LMSet.empty 
 	(ISet.singleton i1,MSet.singleton (IMap.singleton i2 i1))
     in
-    None
+    (LMSet.cardinal s,None)
   with
-    ContreExemple p -> Some p
+    ContreExemple (n,p) -> (n,Some p)
