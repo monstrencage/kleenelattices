@@ -87,7 +87,6 @@ INPUT = $(MLI) $(AUTRES) $(ML) $(MAIN) $(DRAW) $(WMAIN)
 
 NAME=rkl
 EXEC = solve draw
-WPAGE = solve_script
 
 
 ########################## Advanced user's variables #####################
@@ -163,9 +162,9 @@ top : dep $(NAME).top
 
 libs : dep $(NAME).cma $(NAME).cmxa
 
-js : dep $(WPAGE).js
+js : dep $(WMAIN:.ml=.js)
 	mkdir -p javascripts
-	mv $(WPAGE).js javascripts 
+	mv $(WPAGE) javascripts 
 
 archive : dep $(NAME).tar.gz
 
@@ -184,6 +183,8 @@ OPTOBJS = $(SMLYL:.ml=.cmx)
 
 INMLIY = $(INPUT:.mly=.ml)
 INLIYL = $(INMLIY:.mll=.ml) $($(filter %.mly,$(INPUT)):.mly=.mli)
+
+WPAGE = $(WMAIN:.ml=.js)
 
 $(NAME).tar.gz : $(NAME).tar
 	gzip $(NAME).tar;
@@ -228,13 +229,16 @@ $(NAME).html : $(OBJS)
 	mv *.html doc/
 	mv *.css doc/
 
-$(WPAGE).byte: $(OBJS)
-	$(CAMLWEB) -o $(WPAGE).byte $(filter-out print%,$(OBJS)) $(WMAIN)
+#$(WPAGE).byte: $(OBJS)
+#	$(CAMLWEB) -o $(WPAGE).byte $(filter-out print%,$(OBJS)) $(WMAIN)
 
-$(WPAGE).js: $(WPAGE).byte
-	js_of_ocaml $<
 
-.SUFFIXES: .ml .mli .cmo .cmi .cmx .mll .mly 
+.SUFFIXES: .ml .mli .cmo .cmi .cmx .mll .mly .js
+
+
+.ml.js: $(OBJS)
+	$(CAMLWEB) -o $*.byte $(filter-out print%,$(OBJS)) $<
+	js_of_ocaml $*.byte
 
 .ml.cmo:
 	$(CAMLC) -c $<
