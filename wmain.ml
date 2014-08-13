@@ -27,7 +27,7 @@ let handle f x =
     f x	
   with Parsing.Parse_error -> (false,"")
 
-let solve d str =
+let solve_eqs d str =
   let p = Html.createP d
   and sl = 
     List.map 
@@ -55,7 +55,7 @@ let replace_child p n =
 
 open Tools
 
-let initex = "(a|b)+.C & d"
+let initex = "(a|b)+.C & d | e.(a|b)"
 
 let blue = Js.Unsafe.obj [|
   ( "border" , Js.Unsafe.inject ( Js.string "#2B7CE9"));
@@ -160,34 +160,83 @@ let data expr =
 	(fun t acc -> printTrans nb t acc)
 	tr (ISet.max_elt p +1,places,[])
   in
-  Js.Unsafe.obj 
-    [|("nodes",conv nodes);
-      ("edges",conv edges)|]
+  let fns = Printf.sprintf "Final states : %s" (printisset fn) in
+  (Js.Unsafe.obj 
+     [|("nodes",conv nodes);
+       ("edges",conv edges)|],
+   Js.string fns)
+
+exception NotDefined
+
+let draw_func input output1 output2 =
+  let dyn_preview old_text n =
+    let text = Js.to_string (input##value) in
+    if text <> old_text 
+    then 
+      begin
+        begin 
+	  try
+	    let data,fns = data text in
+	    (Js.Unsafe.variable "window")##data <- data; 
+	    Js.Unsafe.eval_string 
+	      "new vis.Network(document.getElementById('auto'),data, {})";
+	    output2##innerHTML <- fns
+          with _ -> () 
+	end;
+        (20,text)
+      end else
+      (max 0 (n - 1),text)
+  in
+  dyn_preview
+
+let solve_func d input output =
+  let dyn_preview old_text n =
+    let text = Js.to_string (input##value) in
+    if text <> old_text
+    then 
+      begin
+        begin 
+	  try
+	    let rendered = solve_eqs d text in
+	    replace_child output rendered
+	  with _ -> () 
+	end;
+	(20,text)
+      end 
+    else (max 0 (n - 1),text)
+  in
+  dyn_preview
+
 
 let onload _ = 
   let d = Html.document in
-  let draw =
+  let body_draw =
     Js.Opt.get (d##getElementById(Js.string "draw"))
-      (fun () -> assert false) in
+      (fun () -> Html.createDiv d(*assert false*)) in
   let textbox_draw = Html.createInput d in
-  let preview_draw = Html.createTd d in
+  let preview_draw = Html.createDiv d in
+  let preview_draw2 = Html.createP d in
   let _ =
     (*textbox_draw##rows <- 1 ; *)
     textbox_draw##size <- 20;
     textbox_draw##value <- Js.string initex;
     preview_draw##id <- Js.string "auto";
+    textbox_draw##id <- Js.string "drawin";
     let tab = Html.createTable d in
     let row = Html.createTr d in
-    let txtcell = Html.createTd d in
-    Dom.appendChild draw tab;
+    let txtcell1 = Html.createTd d in
+    let txtcell2 = Html.createTd d in
+    Dom.appendChild body_draw tab;
     Dom.appendChild tab row;
-    Dom.appendChild row txtcell;
-    Dom.appendChild txtcell textbox_draw;
-    Dom.appendChild row preview_draw;
+    Dom.appendChild row txtcell1;
+    Dom.appendChild txtcell1 textbox_draw;
+    Dom.appendChild row txtcell2;
+    Dom.appendChild txtcell2 preview_draw;
+    Dom.appendChild txtcell2 preview_draw2;
   in
   let body =
     Js.Opt.get (d##getElementById(Js.string "solve"))
-      (fun () -> assert false) in
+      (fun () -> Html.createDiv d(*assert false*)) in
 
   let textbox = Html.createTextarea d in
   let preview = Html.createTd d in
@@ -197,6 +246,8 @@ let onload _ =
     preview##style##border <- Js.string "1px black dashed";
     preview##style##padding <- Js.string "5px";
     preview##style##width <- Js.string "400px";
+    preview##id <- Js.string "solveout";
+    textbox##id <- Js.string "solvein";
     let tab = Html.createTable d in
     let row = Html.createTr d in
     let txtcell = Html.createTd d in
@@ -206,34 +257,13 @@ let onload _ =
     Dom.appendChild txtcell textbox;
     Dom.appendChild row preview;
   in
+  let draw = draw_func textbox_draw preview_draw preview_draw2
+  and solve = solve_func d textbox preview in
   let rec dyn_preview old_textex old_texteq n =
-    let textex = Js.to_string (textbox_draw##value) in
-    let n =
-      if textex <> old_textex then begin
-        begin try
-          let data = data textex in
-	  (Js.Unsafe.variable "window")##montexte <-  Js.string "caca";
-	  (Js.Unsafe.variable "window")##data <- data; 
-	  Js.Unsafe.eval_string 
-	     "new vis.Network(document.getElementById('auto'),data, {})"
-        with _ -> () end;
-        20
-      end else
-        max 0 (n - 1)
-    in
-    let texteq = Js.to_string (textbox##value) in
-    let n =
-      if texteq <> old_texteq then begin
-        begin try
-          let rendered = solve d texteq in
-          replace_child preview rendered;
-        with _ -> () end;
-        20
-      end else
-        max 0 (n - 1)
-    in
+    let (n1,t1) = draw old_textex n in
+    let (n2,t2) = solve old_texteq n1 in
     Lwt_js.sleep (if n = 0 then 0.5 else 0.1) >>= fun () ->
-    dyn_preview textex old_texteq n
+    dyn_preview t1 t2 n2
   in
   ignore (dyn_preview "" "" 0);
   Js._false
