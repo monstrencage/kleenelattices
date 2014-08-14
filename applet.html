@@ -9,75 +9,133 @@
     <link rel="stylesheet" href="stylesheets/style_perso.css" />
     <title>Relational Kleene Lattices</title>
     <link rel="shortcut icon" href="images/rklm.ico"/>
-    <script type="text/javascript" src="javascripts/solve_script.js"></script>
+    <script type="text/javascript" src="javascripts/wmain.js"></script>
+    <script src="http://visjs.org/dist/vis.js">
+    </script>
+    <style type="text/css">
+      .auto {
+      width: 400px;
+      height: 400px;
+      border: 1px solid lightgray;
+      }
+      .applet table{
+      margin: auto;
+      }
+    </style>
   </head>
   <body>
     <!--Corps-->
     <header id="top" class="box">
       <h1>
+	Relational Kleene Lattices
 	<img src="images/rklm.png" width="120" class="nav_ico"/>
-	Relational Kleene Lattices</h1>
+      </h1>
     </header>
     <div id="tampon">      
     </div>
-    <section id="applet">
-      <div id="zob">
-	<!-- corps du document -->
-      </div>
-    </section>
-    <section id="manuel">
+    <section>
       <header>
 	<h2 class="box">
-	  How to use this applet :
+	  Equation solver
           <a href="#top" class="bouton_rouge">
 	    Back to top 
 	    <img src="images/flecheblanchedroite.png" alt="" />
 	  </a>	
 	</h2>
       </header>
-      <p>
-	Write down equations on the left-hand side of the applet, 
-	and see their validity on the right-hand side in the same order.
-      </p>
-      <p>
-	Equations should be entered like this :
-      </p>
-      <pre><code>&lt;expr1&gt; &lt;cmp&gt; &lt;expr2&gt;
+      <div id="solve" class="applet">
+      </div>
+      <div class="manuel">
+	<header>
+	  <h3 class="box">
+	    How to use this applet :
+	  </h3>
+	</header>
+	<p>
+	  Write down equations on the left-hand side of the applet, 
+	  and see their validity on the right-hand side in the same order.
+	</p>
+	<p>
+	  Equations should be entered like this :
+	</p>
+	<pre><code>&lt;expr1&gt; &lt;cmp&gt; &lt;expr2&gt;
 &lt;expr3&gt; &lt;cmp&gt; &lt;expr4&gt;
 &lt;expr5&gt; &lt;cmp&gt; &lt;expr6&gt;
-      </code></pre>
+	</code></pre>
 
-      <p>where an expression can use strings as variables/letters, and the operations :</p>
+	<p>where an expression can use strings as variables/letters, and the operations :</p>
 
-      <ul>
-	<li>
-	  <code>&lt;expr1&gt; | &lt;expr2&gt;</code> : the set union</li>
-	<li>
-	  <code>&lt;expr1&gt; &amp; &lt;expr2&gt;</code> : the set intersection</li>
-	<li>
-	  <code>&lt;expr1&gt; . &lt;expr2&gt;</code> : the composition of relations</li>
-	<li>
-	  <code>&lt;expr1&gt;+</code> : the transitive closure of a relation.</li>
-      </ul><p>You can also use brackets <code>(...)</code>.
-	The valid comparaisons <code>&lt;cmp&gt;</code> are :</p>
+	<ul>
+	  <li>
+	    <code>&lt;expr1&gt; | &lt;expr2&gt;</code> : the set union</li>
+	  <li>
+	    <code>&lt;expr1&gt; &amp; &lt;expr2&gt;</code> : the set intersection</li>
+	  <li>
+	    <code>&lt;expr1&gt; . &lt;expr2&gt;</code> : the composition of relations</li>
+	  <li>
+	    <code>&lt;expr1&gt;+</code> : the transitive closure of a relation.</li>
+	</ul><p>You can also use brackets <code>(...)</code>.
+	  The valid comparaisons <code>&lt;cmp&gt;</code> are :</p>
 
-      <ul>
-	<li>
-	  <code>&lt;=</code> : loose inclusion</li>
-	<li>
-	  <code>&gt;=</code> : converse of the loose inclusion</li>
-	<li>
-	  <code>&lt;</code> : strict inclusion</li>
-	<li>
-	  <code>&gt;</code> : converse of the strict inclusion</li>
-	<li>
-	  <code>=</code> : equality</li>
-	<li>
-	  <code>=/=</code> : negation of the equality</li>
-	<li>
-	  <code>&lt;&gt;</code> : means that the two expressions are incomparable, <em>i.e.</em> neither one of them is included in the other.</li>
-      </ul>
+	<ul>
+	  <li>
+	    <code>&lt;=</code> : loose inclusion</li>
+	  <li>
+	    <code>&gt;=</code> : converse of the loose inclusion</li>
+	  <li>
+	    <code>&lt;</code> : strict inclusion</li>
+	  <li>
+	    <code>&gt;</code> : converse of the strict inclusion</li>
+	  <li>
+	    <code>=</code> : equality</li>
+	  <li>
+	    <code>=/=</code> : negation of the equality</li>
+	  <li>
+	    <code>&lt;&gt;</code> : means that the two expressions are incomparable, <em>i.e.</em> neither one of them is included in the other.</li>
+	</ul>
+      </div>
+    </section>
+    <section class="applet">
+      <header>
+	<h2 class="box">
+	  Automaton visualizer
+          <a href="#top" class="bouton_rouge">
+	    Back to top 
+	    <img src="images/flecheblanchedroite.png" alt="" />
+	  </a>	
+	</h2>
+      </header>
+      <div id="draw" class="applet">
+      </div>
 
+      <div class="manuel">
+	<header>
+	  <h3 class="box">
+	    How to use this applet :
+	  </h3>
+	</header>
+      </div>
+    </section>
+    <section class="applet">
+      <header>
+	<h2 class="box">
+	  Details of the resolution of an equation
+          <a href="#top" class="bouton_rouge">
+	    Back to top 
+	    <img src="images/flecheblanchedroite.png" alt="" />
+	  </a>	
+	</h2>
+      </header>
+      <div id="details" class="applet">
+      </div>
+
+      <div class="manuel">
+	<header>
+	  <h3 class="box">
+	    How to use this applet :
+	  </h3>
+	</header>
+      </div>
     </section>
   </body>
 </html>
