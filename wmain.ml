@@ -150,7 +150,7 @@ let data expr =
       (ISet.remove i p)
       [node_init i]
   in
-  let nb = Trans.cardinal tr in
+  let nb = ISet.max_elt p +1 in
   let conv a =   
     Js.Unsafe.inject 
       (Js.array (Array.of_list (List.map Js.Unsafe.inject a)))
@@ -158,7 +158,7 @@ let data expr =
   let _,nodes,edges =
       Trans.fold 
 	(fun t acc -> printTrans nb t acc)
-	tr (ISet.max_elt p +1,places,[])
+	tr (nb,places,[])
   in
   let fns = Printf.sprintf "Final states : %s" (printisset fn) in
   (Js.Unsafe.obj 
@@ -168,9 +168,37 @@ let data expr =
 
 exception NotDefined
 
-let draw_func input output1 output2 =
+let draw_func tag =
+  let d = Html.document in
+  let body_draw =
+    Js.Opt.get (d##getElementById(Js.string tag))
+      (fun () -> Html.createDiv d(*assert false*)) in
+  let textbox_draw = Html.createInput d in
+  let preview_draw = Html.createDiv d in
+  let preview_draw2 = Html.createP d in
+  textbox_draw##size <- 20;
+  textbox_draw##value <- Js.string initex;
+  preview_draw##id <- Js.string (tag^"_auto");
+  preview_draw##className <- Js.string "auto";
+  textbox_draw##className <- Js.string "drawin";
+  let tab = Html.createTable d in
+  let row = Html.createTr d in
+  let txtcell1 = Html.createTd d in
+  let txtcell2 = Html.createTd d in
+  Dom.appendChild body_draw tab;
+  Dom.appendChild tab row;
+  Dom.appendChild row txtcell1;
+  Dom.appendChild txtcell1 textbox_draw;
+  Dom.appendChild row txtcell2;
+  Dom.appendChild txtcell2 preview_draw;
+  Dom.appendChild txtcell2 preview_draw2;
+  let cmd = 
+    Printf.sprintf 
+      "new vis.Network(document.getElementById('%s_auto'),data, {})" 
+      (tag)
+  in
   let dyn_preview old_text n =
-    let text = Js.to_string (input##value) in
+    let text = Js.to_string (textbox_draw##value) in
     if text <> old_text 
     then 
       begin
@@ -178,9 +206,8 @@ let draw_func input output1 output2 =
 	  try
 	    let data,fns = data text in
 	    (Js.Unsafe.variable "window")##data <- data; 
-	    Js.Unsafe.eval_string 
-	      "new vis.Network(document.getElementById('auto'),data, {})";
-	    output2##innerHTML <- fns
+	    Js.Unsafe.eval_string cmd;
+	    preview_draw2##innerHTML <- fns
           with _ -> () 
 	end;
         (20,text)
@@ -189,16 +216,37 @@ let draw_func input output1 output2 =
   in
   dyn_preview
 
-let solve_func d input output =
+let solve_func tag =
+  let d = Html.document in
+  let body =
+    Js.Opt.get (d##getElementById(Js.string tag))
+      (fun () -> Html.createDiv d(*assert false*)) in
+  let textbox = Html.createTextarea d in
+  let preview = Html.createTd d in
+  textbox##rows <- 20 ; textbox##cols <- 50;
+  textbox##value <- Js.string initeq;
+  preview##style##border <- Js.string "1px black dashed";
+  preview##style##padding <- Js.string "5px";
+  preview##style##width <- Js.string "400px";
+  preview##className <- Js.string "solveout";
+  textbox##className <- Js.string "solvein";
+  let tab = Html.createTable d in
+  let row = Html.createTr d in
+  let txtcell = Html.createTd d in
+  Dom.appendChild body tab;
+  Dom.appendChild tab row;
+  Dom.appendChild row txtcell;
+  Dom.appendChild txtcell textbox;
+  Dom.appendChild row preview;
   let dyn_preview old_text n =
-    let text = Js.to_string (input##value) in
+    let text = Js.to_string (textbox##value) in
     if text <> old_text
     then 
       begin
         begin 
 	  try
 	    let rendered = solve_eqs d text in
-	    replace_child output rendered
+	    replace_child preview rendered
 	  with _ -> () 
 	end;
 	(20,text)
@@ -209,56 +257,8 @@ let solve_func d input output =
 
 
 let onload _ = 
-  let d = Html.document in
-  let body_draw =
-    Js.Opt.get (d##getElementById(Js.string "draw"))
-      (fun () -> Html.createDiv d(*assert false*)) in
-  let textbox_draw = Html.createInput d in
-  let preview_draw = Html.createDiv d in
-  let preview_draw2 = Html.createP d in
-  let _ =
-    (*textbox_draw##rows <- 1 ; *)
-    textbox_draw##size <- 20;
-    textbox_draw##value <- Js.string initex;
-    preview_draw##id <- Js.string "auto";
-    textbox_draw##id <- Js.string "drawin";
-    let tab = Html.createTable d in
-    let row = Html.createTr d in
-    let txtcell1 = Html.createTd d in
-    let txtcell2 = Html.createTd d in
-    Dom.appendChild body_draw tab;
-    Dom.appendChild tab row;
-    Dom.appendChild row txtcell1;
-    Dom.appendChild txtcell1 textbox_draw;
-    Dom.appendChild row txtcell2;
-    Dom.appendChild txtcell2 preview_draw;
-    Dom.appendChild txtcell2 preview_draw2;
-  in
-  let body =
-    Js.Opt.get (d##getElementById(Js.string "solve"))
-      (fun () -> Html.createDiv d(*assert false*)) in
-
-  let textbox = Html.createTextarea d in
-  let preview = Html.createTd d in
-  let _ =
-    textbox##rows <- 20 ; textbox##cols <- 50;
-    textbox##value <- Js.string initeq;
-    preview##style##border <- Js.string "1px black dashed";
-    preview##style##padding <- Js.string "5px";
-    preview##style##width <- Js.string "400px";
-    preview##id <- Js.string "solveout";
-    textbox##id <- Js.string "solvein";
-    let tab = Html.createTable d in
-    let row = Html.createTr d in
-    let txtcell = Html.createTd d in
-    Dom.appendChild body tab;
-    Dom.appendChild tab row;
-    Dom.appendChild row txtcell;
-    Dom.appendChild txtcell textbox;
-    Dom.appendChild row preview;
-  in
-  let draw = draw_func textbox_draw preview_draw preview_draw2
-  and solve = solve_func d textbox preview in
+  let draw = draw_func "draw"
+  and solve = solve_func "solve" in
   let rec dyn_preview old_textex old_texteq n =
     let (n1,t1) = draw old_textex n in
     let (n2,t2) = solve old_texteq n1 in
