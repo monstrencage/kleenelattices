@@ -5,7 +5,7 @@
 <meta content="text/html; charset=utf8" http-equiv="Content-Type">
 <link rel="Start" href="rkl.html">
 <link rel="previous" href="Solve.html">
-<link rel="next" href="Word.html">
+<link rel="next" href="Petri.html">
 <link rel="Up" href="rkl.html">
 <link title="Index of types" rel=Appendix href="rkl_types.html">
 <link title="Index of exceptions" rel=Appendix href="rkl_exceptions.html">
@@ -15,18 +15,19 @@
 <link title="Exprtools" rel="Chapter" href="Exprtools.html">
 <link title="Solve" rel="Chapter" href="Solve.html">
 <link title="Tools" rel="Chapter" href="Tools.html">
-<link title="Word" rel="Chapter" href="Word.html">
-<link title="Lts" rel="Chapter" href="Lts.html">
-<link title="PrintLts" rel="Chapter" href="PrintLts.html"><link title="Usefull modules." rel="Section" href="#3_Usefullmodules">
+<link title="Petri" rel="Chapter" href="Petri.html">
+<link title="PrintPetri" rel="Chapter" href="PrintPetri.html">
+<link title="Word" rel="Chapter" href="Word.html"><link title="Usefull modules." rel="Section" href="#3_Usefullmodules">
 <link title="Types and exceptions." rel="Section" href="#3_Typesandexceptions">
 <link title="Some basic functions." rel="Section" href="#3_Somebasicfunctions">
+<link title="Printing functions." rel="Section" href="#3_Printingfunctions">
 <link title="Input function." rel="Section" href="#3_Inputfunction">
 <title>Tools</title>
 </head>
 <body>
 <div class="navbar"><a class="pre" href="Solve.html" title="Solve">Previous</a>
 &nbsp;<a class="up" href="rkl.html" title="Index">Up</a>
-&nbsp;<a class="post" href="Word.html" title="Word">Next</a>
+&nbsp;<a class="post" href="Petri.html" title="Petri">Next</a>
 </div>
 <h1>Module <a href="type_Tools.html">Tools</a></h1>
 
@@ -53,10 +54,6 @@ Implementation of sets of maps with integer keys.
 Implementation of sets of sets of integers.
 </div>
 
-<pre><span class="keyword">module</span> <a href="Tools.ISMap.html">ISMap</a>: <code class="type">Map.S</code><code class="type">  with type key = ISet.t</code></pre><div class="info">
-Implementation of map with sets of integers as keys.
-</div>
-
 <pre><span class="keyword">module</span> <a href="Tools.SISet.html">SISet</a>: <code class="type">Set.S</code><code class="type">  with type elt = string * int</code></pre><div class="info">
 Implementation of sets of pairs of a sting and an integer.
 </div>
@@ -64,18 +61,22 @@ Implementation of sets of pairs of a sting and an integer.
 <pre><span class="keyword">module</span> <a href="Tools.TrSet.html">TrSet</a>: <code class="type">Set.S</code><code class="type">  with type elt = int * string * int</code></pre><div class="info">
 Sets of transitions, as triples.
 </div>
+
+<pre><span class="keyword">module</span> <a href="Tools.Trans.html">Trans</a>: <code class="type">Set.S</code><code class="type">  with type elt = ISet.t * SISet.t</code></pre><div class="info">
+Sets of petri transitions.
+</div>
 <br>
 <h3 id="3_Typesandexceptions">Types and exceptions.</h3><br>
+
+<pre><span id="TYPEptrans"><span class="keyword">type</span> <code class="type"></code>ptrans</span> = <code class="type">ISet.t * SISet.t</code> </pre>
+<div class="info ">
+Petri transitions<br>
+</div>
+
 
 <pre><span id="TYPEmarquage"><span class="keyword">type</span> <code class="type"></code>marquage</span> = <code class="type">ISet.t</code> </pre>
 <div class="info ">
 Alias for ISet.t<br>
-</div>
-
-
-<pre><span id="TYPEtranche"><span class="keyword">type</span> <code class="type"></code>tranche</span> = <code class="type">SISet.t IMap.t</code> </pre>
-<div class="info ">
-Maps from integers to sets of pairs of a string and an integer.<br>
 </div>
 
 
@@ -85,37 +86,13 @@ Alias for maps from integers to integers.<br>
 </div>
 
 
-<pre><span id="TYPEreadstateset"><span class="keyword">type</span> <code class="type"></code>readstateset</span> = <code class="type">MSet.t</code> </pre>
-<div class="info ">
-Alias for <code class="code">MSet.t</code>.<br>
-</div>
-
-
-<pre><span id="TYPEtrans"><span class="keyword">type</span> <code class="type"></code>trans</span> = <code class="type"><a href="Tools.html#TYPEreadstate">readstate</a> * <a href="Tools.html#TYPEtranche">tranche</a></code> </pre>
-<div class="info ">
-Some type for transitions.<br>
-</div>
-
-
-<pre><span id="TYPElts"><span class="keyword">type</span> <code class="type"></code>lts</span> = <code class="type">int * (<a href="Tools.html#TYPEtrans">trans</a> * <a href="Tools.html#TYPEmarquage">marquage</a>) list ISMap.t * ISSet.t</code> </pre>
-<div class="info ">
-Type for labeled transition system.<br>
-</div>
-
-
-<pre><span id="EXCEPTIONContreExemple"><span class="keyword">exception</span> ContreExemple</span> <span class="keyword">of</span> <code class="type">string <a href="Expr.html#TYPEground">Expr.ground</a></code></pre>
+<pre><span id="EXCEPTIONContreExemple"><span class="keyword">exception</span> ContreExemple</span> <span class="keyword">of</span> <code class="type">int * string * string <a href="Expr.html#TYPEground">Expr.ground</a></code></pre>
 <div class="info ">
 Exception to be raised when a ground term proving 
-    non-inclusion has een found.<br>
+    non-inclusion has been found.<br>
 </div>
 <br>
 <h3 id="3_Somebasicfunctions">Some basic functions.</h3><br>
-
-<pre><span id="VALadd_set"><span class="keyword">val</span> add_set</span> : <code class="type">ISet.t -> 'a -> 'a list ISMap.t -> 'a list ISMap.t</code></pre><div class="info ">
-<code class="code">add_set s i m</code> will return a map where <code class="code">s</code> is associated to a list
-    containing all the previous bindings of <code class="code">s</code> in <code class="code">m</code> with the addition 
-    of <code class="code">i</code>. All the other bindings of <code class="code">m</code> are unchanged.<br>
-</div>
 
 <pre><span id="VALget_def"><span class="keyword">val</span> get_def</span> : <code class="type">'a -> ('b -> 'c -> 'a) -> 'b -> 'c -> 'a</code></pre><div class="info ">
 <code class="code">get_def default f a b</code> will try and compute <code class="code">f a b</code>, 
@@ -126,46 +103,21 @@ Exception to be raised when a ground term proving
 <code class="code">bind f [a_1;a_2;...;a_n]</code> returns the list <code class="code">(f a_1)@(f a_2)@...@(f a_n)</code>.<br>
 </div>
 
-<pre><span id="VALilst2set"><span class="keyword">val</span> ilst2set</span> : <code class="type">int list -> ISet.t</code></pre><div class="info ">
-<code class="code">ilst2set l</code> computes to the set of integers appearing in <code class="code">l</code>.<br>
-</div>
-
-<pre><span id="VALeqstates"><span class="keyword">val</span> eqstates</span> : <code class="type">(int -> int -> bool) -> (int -> int -> bool) -> ISet.t -> bool</code></pre><div class="info ">
-Tests the equality of the restriction to some finite domain of 
-    two relations over integers.<br>
-</div>
-
-<pre><span id="VALimg"><span class="keyword">val</span> img</span> : <code class="type">SISet.t IMap.t -> ISet.t</code></pre><div class="info ">
-<code class="code">img m</code> computes the set of integers <code class="code">j</code> such that there is a string <code class="code">x</code>
-    and an index <code class="code">i</code>, such that <code class="code">(x,j)</code> is in the binding of <code class="code">i</code> in <code class="code">m</code>.<br>
-</div>
-
 <pre><span id="VALdom"><span class="keyword">val</span> dom</span> : <code class="type">'a IMap.t -> ISet.t</code></pre><div class="info ">
 <code class="code">dom m</code> computes the set of indexes that are bound to something in <code class="code">m</code>.<br>
 </div>
 
-<pre><span id="VALcompose"><span class="keyword">val</span> compose</span> : <code class="type">int IMap.t -> int IMap.t -> int IMap.t</code></pre><div class="info ">
-Functional composition of maps.<br>
-</div>
-
-<pre><span id="VALrev"><span class="keyword">val</span> rev</span> : <code class="type">int IMap.t -> int IMap.t</code></pre><div class="info ">
-Returns the inverse of a bijective map.<br>
-</div>
-
-<pre><span id="VALplaces"><span class="keyword">val</span> places</span> : <code class="type"><a href="Tools.html#TYPElts">lts</a> -> ISet.t</code></pre><div class="info ">
+<pre><span id="VALinput"><span class="keyword">val</span> input</span> : <code class="type">Trans.t -> <a href="Tools.html#TYPEmarquage">marquage</a></code></pre>
+<pre><span id="VALimg"><span class="keyword">val</span> img</span> : <code class="type"><a href="Tools.html#TYPEreadstate">readstate</a> -> ISet.t -> ISet.t</code></pre><br>
 <h3 id="3_Printingfunctions">Printing functions.</h3><br>
-</div>
 
 <pre><span id="VALprintlist"><span class="keyword">val</span> printlist</span> : <code class="type">('a -> string) -> 'a list -> string</code></pre>
 <pre><span id="VALprintimap"><span class="keyword">val</span> printimap</span> : <code class="type">('a -> string) -> 'a IMap.t -> string</code></pre>
-<pre><span id="VALprintismap"><span class="keyword">val</span> printismap</span> : <code class="type">('a -> string) -> 'a ISMap.t -> string</code></pre>
 <pre><span id="VALprintiset"><span class="keyword">val</span> printiset</span> : <code class="type">ISet.t -> string</code></pre>
 <pre><span id="VALprintisset"><span class="keyword">val</span> printisset</span> : <code class="type">ISSet.t -> string</code></pre>
 <pre><span id="VALprintsiset"><span class="keyword">val</span> printsiset</span> : <code class="type">SISet.t -> string</code></pre>
 <pre><span id="VALprintmset"><span class="keyword">val</span> printmset</span> : <code class="type">MSet.t -> string</code></pre>
-<pre><span id="VALprinttrset"><span class="keyword">val</span> printtrset</span> : <code class="type">TrSet.t -> string</code></pre>
-<pre><span id="VALprinttrans"><span class="keyword">val</span> printtrans</span> : <code class="type"><a href="Tools.html#TYPEtrans">trans</a> * <a href="Tools.html#TYPEmarquage">marquage</a> -> string</code></pre>
-<pre><span id="VALprintlts"><span class="keyword">val</span> printlts</span> : <code class="type"><a href="Tools.html#TYPElts">lts</a> -> string</code></pre><br>
+<pre><span id="VALprinttrset"><span class="keyword">val</span> printtrset</span> : <code class="type">TrSet.t -> string</code></pre><br>
 <h3 id="3_Inputfunction">Input function.</h3><br>
 
 <pre><span id="VALinput_file"><span class="keyword">val</span> input_file</span> : <code class="type">string -> string list</code></pre><div class="info ">
