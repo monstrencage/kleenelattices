@@ -115,7 +115,7 @@ Printf.sprintf "{%s}"
 
 
 
-exception ContreExemple of int * string Expr.ground
+exception ContreExemple of int * string * string Expr.ground
 
 let input_file filename =
   let chin = open_in filename in

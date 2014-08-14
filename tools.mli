@@ -50,7 +50,7 @@ type readstate = int IMap.t
 
 (** Exception to be raised when a ground term proving 
     non-inclusion has been found. *)
-exception ContreExemple of int * string Expr.ground
+exception ContreExemple of int * string * string Expr.ground
 
 (** {3 Some basic functions.} *)
 

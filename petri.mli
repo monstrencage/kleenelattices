@@ -43,5 +43,6 @@ val read : Tools.readstate -> Tools.ptrans -> Tools.Trans.t -> Tools.MSet.t
     that is not recognised by the second. In case of success, 
     returns said term.
     Otherwise returns [None]. 
-    It also returns the number of pairs examined. *)
-val simul : t -> t -> int * string Expr.ground option
+    It also returns the number of pairs examined, and a [string] 
+    representing these pairs. *)
+val simul : t -> t -> int * string * string Expr.ground option

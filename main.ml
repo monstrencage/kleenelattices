@@ -17,12 +17,21 @@ let _ =
   let file,solve,fdest = 
     let f = ref "" 
     and solve = ref Solve.solve_file
-    and fdest = ref "" in
+    and fdest = ref "" 
+    and printSim = ref false
+    and printDet = ref false in
     Arg.parse 
       ["-o",Arg.Set_string fdest,
-       "Set the destination name"
+       "Set the destination name";
+       "-s",Arg.Set printSim,
+       "Print the computed simulation";
+       "-d",Arg.Set printDet,
+       "Print the details of the answer";
+       "-v",Arg.Unit (fun () -> printSim:=true;printDet:=true),
+       "Print all details"
+       
       ] 
-      (fun s -> f:=s) "";
-    !f,!solve,(if !fdest = "" then !f else !fdest)
+      (fun s -> f:=s) "Use : solve [OPTIONS] filename";
+    !f,!solve !printDet !printSim,(if !fdest = "" then !f else !fdest)
   in
   solve file fdest

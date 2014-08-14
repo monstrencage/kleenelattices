@@ -19,19 +19,25 @@ open Exprtools
 
 let inf simul se1 se2 e1 e2 =
   match simul e1 e2 with
-  | (n,None) -> (true,Printf.sprintf "\n%s <= %s -- true (%d pairs)" se1 se2 n)
-  | (n,Some l) -> 
+  | (n,sim,None) -> 
+    (true,
+     [sim,Printf.sprintf "\n%s <= %s -- true (%d pairs)" se1 se2 n])
+  | (n,sim,Some l) -> 
     let w = print_expr l
-    in (false,Printf.sprintf "\n%s <= %s -- false : %s (%d pairs)" se1 se2 w n)
+    in 
+    (false,
+     [sim,
+      Printf.sprintf "\n%s <= %s -- false (%d pairs)\nWitness: %s" 
+	se1 se2 n w])
 
 let solve bld inf s=
   let (c,e1,e2) = (get_eq s) in
   let se1,se2 = (print_expr e1,print_expr e2) in
   let e1,e2 = (bld e1,bld e2) in
   let not (a,b) = (not a,b)
-  and ( && ) (a,b) (c,d) = (a && c,b^d)
+  and ( && ) (a,b) (c,d) = (a && c,b@d)
   in
-  let res,b =
+  let res,msg =
     match c with
     | `Geq -> inf se2 se1 e2 e1
     | `Leq -> inf se1 se2 e1 e2
@@ -47,26 +53,34 @@ let solve bld inf s=
       then (a,b) 
       else 
 	let c,d = (not (inf se2 se1 e2 e1))
-	in (c,b^d)
+	in (c,b@d)
     | `Eq -> inf se1 se2  e1 e2 && (inf se2 se1  e2 e1)
   in
   (res,
-   Printf.sprintf "%s %s %s --------- %s\n%s\n\n" 
-     se1 (print_comp c) se2 (if res then "OK" else "Incorrect") b)
+   Printf.sprintf "%s %s %s --------- %s" 
+     se1 (print_comp c) se2 (if res then "OK" else "Incorrect"),
+   msg)
 
 let handle f x =
   try
     f x	
   with Parsing.Parse_error -> ()
 
+let print_msg printDet printSim chout (sim,resdet) =
+  if printDet
+  then Printf.fprintf chout "%s\n" resdet; 
+  if printSim
+  then Printf.fprintf chout "Relation computed:\n%s\n" sim
 
-let solve_file bld inf filename fdest =
+let solve_file bld inf printDet printSim filename fdest =
   let chout = open_out (fdest^".res") in
   List.iter 
     (handle 
        (fun s -> 
-	 Printf.fprintf chout "%s" 
-	   (snd (solve bld inf s))))
+	 let _,res,msg = (solve bld inf s) in
+	 Printf.fprintf chout "%s\n" res;
+	 List.iter (print_msg printDet printSim chout) msg;
+	 Printf.fprintf chout "\n---------\n\n"))
        (input_file filename);
   close_out chout
 

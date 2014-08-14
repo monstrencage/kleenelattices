@@ -20,8 +20,8 @@
     to display, with for instance the witnesses, if some
     were computed.*)
 val solve :
-  string -> bool * string
+  string -> bool * string * (string * string) list
 
 (** [solve_file filename dest] will process all equations in 
     [filename], and write an output in [dest.res]. *)
-val solve_file : string -> string -> unit
+val solve_file : bool -> bool -> string -> string -> unit
