@@ -74,7 +74,8 @@ SOURCES = $(MLI) $(AUTRES) $(ML)
 MAIN = main.ml
 MLI = expr.mli exprtools.mli solve.mli tools.mli petri.mli printPetri.mli word.mli
 #petri.mli printPetri.mli simul.mli unionFind.mli lts.mli printLts.mli
-ML = exprtools.ml tools.ml word.ml petri.ml printPetri.ml solve.ml
+ML = exprtools.ml tools.ml word.ml petri.ml printPetri.ml solve.ml 
+WEB = wdraw.ml wsolve.ml wdetsolve.ml
 # lts.ml printLts.ml
 # unionFind.ml printPetri.ml simul.ml
 AUTRES =  parser.mly lexer.mll
@@ -101,7 +102,7 @@ CAMLDOC = ocamldoc
 CAMLTOP = ocamlmktop
 CAMLLEX = ocamllex
 CAMLYACC = ocamlyacc
-CAMLWEB = ocamlfind ocamlc -package js_of_ocaml -package js_of_ocaml.syntax -syntax camlp4o -linkpkg
+CAMLWEB = ocamlfind ocamlc -package js_of_ocaml -package js_of_ocaml.syntax -syntax camlp4o
 
 # The list of Caml libraries needed by the program
 # For instance:
@@ -162,9 +163,11 @@ top : dep $(NAME).top
 
 libs : dep $(NAME).cma $(NAME).cmxa
 
-js : dep $(WMAIN:.ml=.js)
+js : $(NAME).js
 	mkdir -p javascripts
-	mv $(WPAGE) javascripts 
+	mv $(NAME).js javascripts 
+
+
 
 archive : dep $(NAME).tar.gz
 
@@ -184,7 +187,7 @@ OPTOBJS = $(SMLYL:.ml=.cmx)
 INMLIY = $(INPUT:.mly=.ml)
 INLIYL = $(INMLIY:.mll=.ml) $($(filter %.mly,$(INPUT)):.mly=.mli)
 
-WPAGE = $(WMAIN:.ml=.js)
+WOBJS = $(WEB:.ml=.web)
 
 $(NAME).tar.gz : $(NAME).tar
 	gzip $(NAME).tar;
@@ -232,13 +235,16 @@ $(NAME).html : $(OBJS)
 #$(WPAGE).byte: $(OBJS)
 #	$(CAMLWEB) -o $(WPAGE).byte $(filter-out print%,$(OBJS)) $(WMAIN)
 
+$(NAME).js: $(OBJS) $(WOBJS)
+	$(CAMLWEB) -linkpkg -o $(NAME).byte $(filter-out print%,$(OBJS)) $(WOBJS:.web=.cmo) $(WMAIN)
+	js_of_ocaml $(NAME).byte
 
-.SUFFIXES: .ml .mli .cmo .cmi .cmx .mll .mly .js
 
+.SUFFIXES: .ml .mli .cmo .cmi .cmx .mll .mly .js .web
 
-.ml.js: $(OBJS)
-	$(CAMLWEB) -o $*.byte $(filter-out print%,$(OBJS)) $<
-	js_of_ocaml $*.byte
+.ml.web:
+	$(CAMLWEB) -c $<
+	touch $*.web
 
 .ml.cmo:
 	$(CAMLC) -c $<
@@ -277,13 +283,13 @@ $(NAME).html : $(OBJS)
 	$(CAMLYACC) $<
 
 clean::
-	rm -f *.cm[iox] *~ .*~ *.o *.byte *.js #*#
+	rm -f *.cm[iox] *~ .*~ *.o *.byte *.js *.web #*#
 	rm -f $(EXEC) $(EXECOPT)
 	rm -f $(NAME)*
 
 .depend.input: Makefile
 	@echo -n '--Checking Ocaml input files: '
-	@(ls $(INMLIY) $(INMLIY:.ml=.mli) 2>/dev/null || true) \
+	@(ls $(WEB) $(WMAIN) $(INMLIY) $(INMLIY:.ml=.mli) 2>/dev/null || true) \
 	     >  .depend.new
 	@diff .depend.new .depend.input 2>/dev/null 1>/dev/null && \
 	    (echo 'unchanged'; rm -f .depend.new) || \
@@ -293,6 +299,6 @@ depend: .depend
 
 .depend:: $(INMLIYL) .depend.input
 	@echo '--Re-building dependencies'
-	$(CAMLDEP) $(INMLIY) $(INMLIY:.ml=.mli) > .depend
+	$(CAMLDEP)  $(WEB) $(WMAIN) $(INMLIY) $(INMLIY:.ml=.mli) > .depend
 
 include .depend

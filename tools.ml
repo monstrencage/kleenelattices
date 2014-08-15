@@ -117,6 +117,8 @@ Printf.sprintf "{%s}"
 
 exception ContreExemple of int * string * string Expr.ground
 
+exception NotDefined
+
 let input_file filename =
   let chin = open_in filename in
   let rec aux acc =

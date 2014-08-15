@@ -52,6 +52,9 @@ type readstate = int IMap.t
     non-inclusion has been found. *)
 exception ContreExemple of int * string * string Expr.ground
 
+(** Exception to be raised when a HTML [id] tag can't be found. *)
+exception NotDefined
+
 (** {3 Some basic functions.} *)
 
 (** [get_def default f a b] will try and compute [f a b], 
