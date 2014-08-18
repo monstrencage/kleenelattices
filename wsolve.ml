@@ -87,20 +87,13 @@ let applet tag =
   Dom.appendChild txtcell textbox;
   Dom.appendChild row pre;
   Dom.appendChild pre preview;
-  let dyn_preview old_text n =
+  let update () =
     let text = Js.to_string (textbox##value) in
-    if text <> old_text
-    then 
-      begin
-        begin 
-	  try
-	    let rendered = solve_eqs d true false text in
-	    replace_child preview rendered
-	  with _ -> () 
-	end;
-	(20,text)
-      end 
-    else (max 0 (n - 1),text)
+    try
+      let rendered = solve_eqs d true false text in
+      replace_child preview rendered
+    with _ -> () 
   in
-  dyn_preview
-
+  update();
+  textbox##onchange <- Html.handler
+    (fun e -> update (); Js._false)

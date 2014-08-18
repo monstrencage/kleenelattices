@@ -144,22 +144,15 @@ let applet tag =
       "new vis.Network(document.getElementById('%s_auto'),data, {})" 
       (tag)
   in
-  let dyn_preview old_text n =
+  let update () = 
     let text = Js.to_string (textbox_draw##value) in
-    if text <> old_text 
-    then 
-      begin
-        begin 
-	  try
-	    let data,fns = data text in
-	    (Js.Unsafe.variable "window")##data <- data; 
-	    Js.Unsafe.eval_string cmd;
-	    preview_draw2##innerHTML <- fns
-          with _ -> () 
-	end;
-        (20,text)
-      end else
-      (max 0 (n - 1),text)
+    try
+      let data,fns = data text in
+      (Js.Unsafe.variable "window")##data <- data; 
+      Js.Unsafe.eval_string cmd;
+      preview_draw2##innerHTML <- fns
+    with _ -> () 
   in
-  dyn_preview
-
+  update();
+  textbox_draw##onchange <- Html.handler
+    (fun e -> update();Js._false)

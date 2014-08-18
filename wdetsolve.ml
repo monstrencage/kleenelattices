@@ -77,22 +77,17 @@ let applet tag =
 	fn2##innerHTML <- fns
       end
   in
-  let dyn_preview old_text n =
+  let update () =
     let text = Js.to_string (textbox_draw##value) in
-    if text <> old_text 
-    then 
-      begin
-        begin 
-	  try
-	    let (_,e,f) = Exprtools.get_eq text in
-	    refresh 1 e;
-	    refresh 2 f;
-	    let rendered = Wsolve.solve_eqs d true true text in
-	    replace_child outmsg rendered
-          with _ -> () 
-	end;
-        (20,text)
-      end else
-      (max 0 (n - 1),text)
+    try
+      let (_,e,f) = Exprtools.get_eq text in
+      refresh 1 e;
+      refresh 2 f;
+      let rendered = Wsolve.solve_eqs d true true text in
+      replace_child outmsg rendered
+    with _ -> () 
   in
-  dyn_preview
+  update();
+  textbox_draw##onchange <- Html.handler
+    (fun e -> update(); Js._false)
+  
