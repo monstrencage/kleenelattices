@@ -1,6 +1,10 @@
 module Html = Dom_html
 open Tools
 
+let replace_child p n =
+  Js.Opt.iter (p##firstChild) (fun c -> Dom.removeChild p c);
+  Dom.appendChild p n
+
 let initex = "(a|b)+.C & d | e.(a|b)"
 
 let initeq = "(a|b)+.C & d > d & a.b.C & (d|a)\n"
@@ -129,6 +133,7 @@ let applet tag =
   preview_draw2##className <- Js.string "center";
   textbox_draw##className <- Js.string "drawin";
   let tab = Html.createTable d in
+  replace_child body_draw tab;
   let row = Html.createTr d in
   let txtcell1 = Html.createTd d in
   let txtcell2 = Html.createTd d in

@@ -7,6 +7,10 @@ let replace_child p n =
   Js.Opt.iter (p##firstChild) (fun c -> Dom.removeChild p c);
   Dom.appendChild p n
 
+let handle f x =
+  try
+    f x	
+  with Parsing.Parse_error -> (false,"",[])
 
 let applet tag =
   let d = Html.document in
@@ -20,7 +24,7 @@ let applet tag =
   let title2 = Html.createCode d in
   let graph2 = Html.createDiv d in
   let fn2 = Html.createP d in
-  let outmsg = Html.createCode d in
+  let outmsg = Html.createP d in
   textbox_draw##size <- 50;
   textbox_draw##value <- Js.string initeq;
   textbox_draw##className <- Js.string "drawin";
@@ -29,21 +33,24 @@ let applet tag =
   graph2##id <- Js.string (tag^"_auto2");
   graph2##className <- Js.string "auto";
   let tab = Html.createTable d in
+  replace_child body_draw tab;
   let row1 = Html.createTr d in
   let row2 = Html.createTr d in
   let row3 = Html.createTr d in
   let txtcell1 = Html.createTd d in
+  let valcell  = Html.createA d in
   let txtcell2 = Html.createTd d in
   let txtcell3 = Html.createTd d in
   let txtcell4 = Html.createTd d in
-  let pre = Html.createPre d in
-  pre##className <- Js.string "output";
+(*  let pre = Html.createPre d in*)
+(*  outmsg##className <- Js.string "output";*)
   Dom.appendChild body_draw tab;
   Dom.appendChild tab row1;
   Dom.appendChild tab row2;
   Dom.appendChild tab row3;
   Dom.appendChild row1 txtcell1;
   Dom.appendChild txtcell1 textbox_draw;
+  Dom.appendChild txtcell1 valcell;
   Dom.appendChild row2 txtcell2;
   Dom.appendChild row2 txtcell3;
   Dom.appendChild txtcell2 title1;
@@ -53,8 +60,7 @@ let applet tag =
   Dom.appendChild txtcell3 graph2;
   Dom.appendChild txtcell3 fn2;
   Dom.appendChild row3 txtcell4;
-  Dom.appendChild txtcell4 pre;
-  Dom.appendChild pre outmsg;
+  Dom.appendChild txtcell4 outmsg;
   let cmd i = 
     Printf.sprintf 
       "new vis.Network(document.getElementById('%s_auto%d'),data, {})" 
@@ -83,8 +89,9 @@ let applet tag =
       let (_,e,f) = Exprtools.get_eq text in
       refresh 1 e;
       refresh 2 f;
-      let rendered = Wsolve.solve_eqs d true true text in
-      replace_child outmsg rendered
+      let res = handle Solve.solve text in
+      Wsolve.printval d valcell res;
+      Wsolve.printmsg d outmsg true true "Results:" res
     with _ -> () 
   in
   update();
