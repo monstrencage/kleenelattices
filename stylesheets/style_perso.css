@@ -260,7 +260,6 @@ footer
 }
 
 pre {
-  width: 100%;
   padding: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,.1);
   overflow: auto;
@@ -269,12 +268,12 @@ pre {
 
 code {
   padding: 1px;
-  margin: 0 3px;
   box-shadow: 0 0 10px rgba(0,0,0,.1);
   background-color: rgba(0,0,0,.2);
 }
 
 pre code {
+  margin: 0 3px;
   display: block;
   box-shadow: none;
   background-color: rgba(0,0,0,0);

@@ -9,17 +9,27 @@
     <link rel="stylesheet" href="stylesheets/style_perso.css" />
     <title>Relational Kleene Lattices</title>
     <link rel="shortcut icon" href="images/rklm.ico"/>
-    <script type="text/javascript" src="javascripts/wmain.js"></script>
-    <script src="http://visjs.org/dist/vis.js">
+    <script type="text/javascript">
+      var ok="images/green_tick.png";
+      var nope="images/red-cross.png";
     </script>
+    <script type="text/javascript" src="javascripts/rkl.js">
+    </script>
+    <script src="http://visjs.org/dist/vis.js"></script>
     <style type="text/css">
       .auto {
       width: 400px;
       height: 400px;
       border: 1px solid lightgray;
       }
-      .applet table{
+      .center{
       margin: auto;
+      }
+
+      .output {
+      margin:0px 20px 0px 20px;
+      padding: 5px;
+      border: 1px black dashed;
       }
     </style>
   </head>
@@ -45,6 +55,9 @@
       </header>
       <div id="solve" class="applet">
       </div>
+
+      <!--div id="solve" class="applet">
+      </div-->
       <div class="manuel">
 	<header>
 	  <h3 class="box">
@@ -52,18 +65,18 @@
 	  </h3>
 	</header>
 	<p>
-	  Write down equations on the left-hand side of the applet, 
-	  and see their validity on the right-hand side in the same order.
+	  Write down equations in the left-hand side fields of the 
+	  applet, and see their validity just to their right (a green 
+	  tick meaning yes and a red cross meaning no). The rightmost 
+	  button allow you to see more details, and to hide them 
+	  afterwards.
 	</p>
 	<p>
 	  Equations should be entered like this :
+	  <code>&lt;expr1&gt; &lt;cmp&gt; &lt;expr2&gt;</code>.
 	</p>
-	<pre><code>&lt;expr1&gt; &lt;cmp&gt; &lt;expr2&gt;
-&lt;expr3&gt; &lt;cmp&gt; &lt;expr4&gt;
-&lt;expr5&gt; &lt;cmp&gt; &lt;expr6&gt;
-	</code></pre>
-
-	<p>where an expression can use strings as variables/letters, and the operations :</p>
+	<p>An expression can use strings as variables/letters, 
+	  and the operations :</p>
 
 	<ul>
 	  <li>
@@ -93,6 +106,8 @@
 	  <li>
 	    <code>&lt;&gt;</code> : means that the two expressions are incomparable, <em>i.e.</em> neither one of them is included in the other.</li>
 	</ul>
+	<p>For instance, <code>(a|b)+.C & d > d & a.b.C & (d|a)</code> is an acceptable equation.
+	</p>
       </div>
     </section>
     <section class="applet">
@@ -108,13 +123,13 @@
       <div id="draw" class="applet">
       </div>
 
-      <div class="manuel">
+      <!--div class="manuel">
 	<header>
 	  <h3 class="box">
 	    How to use this applet :
 	  </h3>
 	</header>
-      </div>
+      </div-->
     </section>
     <section class="applet">
       <header>
@@ -129,13 +144,13 @@
       <div id="details" class="applet">
       </div>
 
-      <div class="manuel">
+      <!--div class="manuel">
 	<header>
 	  <h3 class="box">
 	    How to use this applet :
 	  </h3>
 	</header>
-      </div>
+      </div-->
     </section>
   </body>
 </html>

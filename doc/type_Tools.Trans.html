@@ -12,11 +12,11 @@
 <link title="Tools" rel="Chapter" href="Tools.html">
 <link title="Petri" rel="Chapter" href="Petri.html">
 <link title="PrintPetri" rel="Chapter" href="PrintPetri.html">
-<link title="Word" rel="Chapter" href="Word.html"><title>Tools.SISet</title>
+<link title="Word" rel="Chapter" href="Word.html"><title>Tools.Trans</title>
 </head>
 <body>
 <code class="code"><span class="keyword">sig</span><br>
-&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;elt&nbsp;=&nbsp;string&nbsp;*&nbsp;int<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;elt&nbsp;=&nbsp;<span class="constructor">ISet</span>.t&nbsp;*&nbsp;<span class="constructor">SISet</span>.t<br>
 &nbsp;&nbsp;<span class="keyword">type</span>&nbsp;t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;empty&nbsp;:&nbsp;t<br>
 &nbsp;&nbsp;<span class="keyword">val</span>&nbsp;is_empty&nbsp;:&nbsp;t&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;bool<br>
