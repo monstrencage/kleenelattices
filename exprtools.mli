@@ -54,3 +54,6 @@ val get_string : string -> string Expr.expr
     expressions over strings. *)
 val get_eq : string -> Expr.comp * string Expr.expr * string Expr.expr
 
+(** Normalises an expression. *)
+
+val normalise : 'a Expr.expr -> 'a Expr.expr

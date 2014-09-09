@@ -95,6 +95,12 @@ let join r i j =
     r
     ""*)
 
+let rec cleanup = function
+  | `Var "" -> `Un
+  | `Conc (e,f) -> `Conc (cleanup e,cleanup f)
+  | `Inter (e,f) -> `Inter (cleanup e,cleanup f)
+  | e -> e
+
 let rec get_expr (i,w,o) =
   ((*Printf.printf "%d -> %d\n%s\n" i o (print_word (i,w,o))*));
   let e = 
@@ -153,7 +159,7 @@ let rec get_expr (i,w,o) =
 		    (`Var a) later)
 	     end)
   in
-  e
+  (cleanup e)
 
 let nu (tr : ptrans list) k p =
   fst
