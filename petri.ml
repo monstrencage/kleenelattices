@@ -95,8 +95,7 @@ let inter (p1,t1,i1,f1 : t) (p2,t2,i2,f2 : t) : t =
   (p,t,i,f)
 
 let trad =
-  let rec aux k = function    
-    | `Un -> aux k (`Var "")
+  let rec aux k = function
     | `Var a ->
       let p = ISet.add (k+1) (ISet.singleton k)
       and t = 
@@ -112,11 +111,7 @@ let trad =
     | `Conc (e,f) -> 
       let (a1,k1) = aux k e in
       let (a2,k2) = aux k1 f in
-      (concat a1 a2, k2)    
-    | `Inter (`Un,f) -> 
-      let (a1,k1) = aux k `Un in
-      let (a2,k2) = aux k1 f in
-      (pstar (inter a1 a2), k2)
+      (concat a1 a2, k2)
     | `Inter (e,f) -> 
       let (a1,k1) = aux k e in
       let (a2,k2) = aux k1 f in
@@ -124,18 +119,15 @@ let trad =
     | `Star e -> 
       let (a1,k1) = aux k e in
       (pstar a1, k1)
-    | `Conv _ | `Zero ->
+    | `Conv _ | `Un | `Zero ->
       failwith "Petri.trad : unsupported operation"
   in
-  (fun e -> (fst (aux 0 (Normal.normalise e))))
+  (fun e -> (fst (aux 0 e)))
 
 
 let candidates (p2,t2,i2,f2 : t) (m : readstate) (s,t : ptrans) 
     : Trans.t list =
   let c0 = dom m in
-  let transet = 
-    ISet.fold (fun q -> Trans.add (ISet.singleton q,SISet.singleton ("",q))) c0 t2
-  in
   let compat trset (s',t') =
     (ISet.is_empty (ISet.inter s' (input trset)))
     &&
@@ -146,7 +138,7 @@ let candidates (p2,t2,i2,f2 : t) (m : readstate) (s,t : ptrans)
 	   SISet.exists (fun (y,_) -> x=y) t)
 	 t')
   in
-  let cand = (Trans.filter (fun (s',t') -> ISet.subset s' c0) transet)
+  let cand = (Trans.filter (fun (s',t') -> ISet.subset s' c0) t2)
   in
   List.filter
     (fun trset -> 
@@ -232,69 +224,25 @@ let simul_step
   in
   (progress c (s,t),MSet.fold succ e MSet.empty)
 
-exception Found of string Expr.ground
-
 let simul (p1,t1,i1,f1 : t) (p2,t2,i2,f2 : t) = 
   let step = simul_step (p2,t2,i2,f2) in
   let get_word p = 
     Word.get_expr (Word.graph (List.rev p))
   in
-  let lmcomp (i,m) (j,n) =
-    match ISet.compare i j with
-    | 0 -> MSet.compare m n
-    | t -> t
+  let good (c,e) =
+    if ISSet.mem c f1
+    then MSet.exists (fun m -> ISSet.mem (dom m) f2) e
+    else true
   in
   let module LMSet = 
 	Set.Make(struct 
 	  type t = ISet.t * MSet.t
-	  let compare = lmcomp
+	  let compare (i,m) (j,n) =
+	    match ISet.compare i j with
+	    | 0 -> MSet.compare m n
+	    | t -> t
 	end)
   in
-  let init = 
-    (ISet.singleton i1,MSet.singleton (IMap.singleton i2 i1))
-  in
-  let accesspath trans a =
-    let augm (path,b) =
-      let next = 
-	List.filter (fun (x,t,y) -> lmcomp x b = 0) trans
-      in
-      List.map
-	(fun (_,t,c) ->
-	  if lmcomp c a = 0 
-	  then raise (Found (get_word (t::path)))
-	  else (t::path,c))
-	next
-    in
-    let rec aux state =
-      aux (Tools.bind augm state)
-    in
-    try aux [[],init]
-    with Found x -> x
-  in
-  let rec final trans acc (c,e) =
-    if LMSet.mem (c,e) acc
-    then false 
-    else
-      if (ISSet.mem c f1)
-      then 
-	if (MSet.exists (fun m -> ISSet.mem (dom m) f2) e)
-	then true
-	else 
-	  let acc' = (LMSet.add (c,e) acc) in
-	  List.exists
-	    (fun (a,(_,t),b) -> 
-	      (lmcomp a (c,e) = 0) 
-	      && (SISet.exists 
-		    (function ("",_) -> true | _ -> false) t)
-	      && (final trans acc' b))
-	    trans
-      else false
-  in
-  let good trans (c,e) = 
-    if (ISSet.mem c f1)
-    then final trans LMSet.empty (c,e)
-    else true
-  in 
   let printLMS sim =
     Printf.sprintf "{%s}"
       (String.concat ",\n"
@@ -304,39 +252,32 @@ let simul (p1,t1,i1,f1 : t) (p2,t2,i2,f2 : t) =
 		(printiset c) (printmset ms)) 
 	    (LMSet.elements sim)))
   in
-  let rec aux path (sim,trans) (c,e) =
+  let rec aux path sim (c,e) =
     if LMSet.mem (c,e) sim
-    then (sim,trans)
+    then sim
     else
       begin
 	Trans.fold
-	  (fun tr (sim,trans) ->
+	  (fun tr acc ->
 	    let (c',e') = step (c,e) tr in
-(*	    if good (c',e') 
-	    then*) aux (tr::path) (sim,(((c,e),tr,(c',e'))::trans)) (c',e')
-(*	    else 
+	    if good (c',e') 
+	    then aux (tr::path) acc (c',e')
+	    else 
 	      let acc' = LMSet.add (c',e') acc
 	      in raise (ContreExemple (LMSet.cardinal acc',
 				       printLMS acc',
-				       get_word (tr::path)))*))
+				       get_word (tr::path))))
 	  (Trans.filter (fun (s,_) -> ISet.subset s c) t1)
-	  (LMSet.add (c,e) sim,trans)
+	  (LMSet.add (c,e) sim)
       end
   in
-(*  try *)
-    let s,trans =
+  try
+    let s =
       aux 
 	[]
-	(LMSet.empty,[]) 
-	init
+	LMSet.empty 
+	(ISet.singleton i1,MSet.singleton (IMap.singleton i2 i1))
     in
-    let contrex = 
-      let bad = LMSet.filter (fun a -> not (good trans a)) s
-      in
-      if LMSet.is_empty bad 
-      then None
-      else Some (accesspath trans (LMSet.choose bad))
-    in
-    (LMSet.cardinal s,printLMS s,contrex)
-(*  with
-    ContreExemple (n,s,p) -> (n,s,Some p)*)
+    (LMSet.cardinal s,printLMS s,None)
+  with
+    ContreExemple (n,s,p) -> (n,s,Some p)

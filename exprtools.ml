@@ -27,8 +27,8 @@ let rec print_expr = function
   | `Inter (e,f) -> Printf.sprintf "(%s & %s)" (print_expr e) (print_expr f)
   | `Conc (e,f) ->  Printf.sprintf "%s.%s" (print_expr e) (print_expr f)
   | `Union (e,f) ->  Printf.sprintf "(%s | %s)" (print_expr e) (print_expr f)
-  | `Zero -> "0" (*"ø"*)
-  | `Un -> "1"(*"ε"*)
+  | `Zero -> "ø"
+  | `Un -> "ε"
   | `Star e -> Printf.sprintf "(%s)+" (print_expr e)
   | `Conv e -> Printf.sprintf "(%s)~" (print_expr e)
 

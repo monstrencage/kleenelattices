@@ -21,13 +21,13 @@ let inf simul se1 se2 e1 e2 =
   match simul e1 e2 with
   | (n,sim,None) -> 
     (true,
-     [sim,Printf.sprintf "\n%s <= %s -- true (%d pairs)" se1 se2 n])
+     [sim,Printf.sprintf "%s <= %s -- true (%d pairs)" se1 se2 n])
   | (n,sim,Some l) -> 
     let w = print_expr l
     in 
     (false,
      [sim,
-      Printf.sprintf "\n%s <= %s -- false (%d pairs)\nWitness: %s" 
+      Printf.sprintf "%s <= %s -- false (%d pairs)\nWitness: %s" 
 	se1 se2 n w])
 
 let solve bld inf s=
@@ -68,7 +68,7 @@ let handle f x =
 
 let print_msg printDet printSim chout (sim,resdet) =
   if printDet
-  then Printf.fprintf chout "%s\n" resdet; 
+  then Printf.fprintf chout "\n%s\n" resdet; 
   if printSim
   then Printf.fprintf chout "Relation computed:\n%s\n" sim
 

@@ -54,7 +54,6 @@ type 'a rkl = [
 
 (** Only variables, intersections and sequences. *)
 type 'a ground = [
-| `Un
 | `Var of 'a
 | `Inter of 'a ground * 'a ground
 | `Conc  of 'a ground * 'a ground ]
