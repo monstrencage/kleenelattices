@@ -1,7 +1,7 @@
 Kleenelattices
 ==============
 
-Library and tools to compare identity-free regular expressions with intersection.
+Library and tools to compare regular expressions with intersection.
 
 Project home page : http://monstrencage.github.io/kleenelattices
 
@@ -39,6 +39,7 @@ A typical input file would look like this
 <expr5> <cmp> <expr6>
 ```
 where an expression can use strings as variables/letters, and the operations :
+* `1` : the identity relation
 * `<expr1> | <expr2>` : the set union
 * `<expr1> & <expr2>` : the set intersection
 * `<expr1> . <expr2>` : the composition of relations
