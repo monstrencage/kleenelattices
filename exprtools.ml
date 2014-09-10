@@ -43,5 +43,3 @@ let print_comp = function
 
 let print_eq (c,e,f) =
   Printf.sprintf "%s %s %s" (print_expr e) (print_comp c) (print_expr f)
-
-
