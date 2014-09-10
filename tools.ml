@@ -119,6 +119,17 @@ exception ContreExemple of int * string * string Expr.ground
 
 exception NotDefined
 
+let notempty s =
+  let rec aux i = 
+    if i<0 
+    then false
+    else
+      match s.[i] with
+      | ' ' | '\r' | '\t' -> aux (i-1)
+      | _ -> true
+  in
+  aux (String.length s -1)
+
 let input_file filename =
   let chin = open_in filename in
   let rec aux acc =
@@ -127,7 +138,7 @@ let input_file filename =
     with
       End_of_file -> (close_in chin;acc)
   in
-  List.rev (aux [])
+  List.filter notempty (List.rev (aux []))
 
 
 (*module Descriptor = struct

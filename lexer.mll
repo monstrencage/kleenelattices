@@ -25,9 +25,11 @@ rule token = parse
   | skip+        { token lexbuf }
   | "//"         { comment lexbuf }
   | '\n'         { NEWLINE }
+  | "{" (digit + as n) "}"
+      {POWER (int_of_string n)}
   | letter+ as s { VAR s }
-  | "*"         { STAR }
-  | "+"         { PSTAR }
+  | "*"          { STAR }
+  | "+"          { PSTAR }
   | '|'          { PLUS }
   | '.'          { DOT }
   | "&"          { INTER } 

@@ -19,7 +19,7 @@
   let to_int n = n
 
   let rec expand e = function
-    | 0 -> `Zero
+    | 0 -> (*`Zero*) failwith "unsupported operation"
     | 1 -> e
     | n -> `Conc(e,expand e (n-1))
 %}
@@ -46,17 +46,18 @@ equation:
 
 exp:
 | VAR                         
-    { if $1="1" 
+    { (*if $1="1" 
       then `Un 
       else 
 	if $1="0" 
 	then `Zero 
-	else `Var $1 }
+	else*) `Var $1 }
 | exp POWER                 { expand $1 $2 }
 | exp DOT exp             { `Conc($1,$3)}
 | exp INTER exp            { `Inter($1,$3)}
 | exp PLUS exp            { `Union($1,$3)}
-| exp STAR                  { `Union (`Un,`Star $1)}
+| exp STAR                 
+    { (*`Union (`Un,`Star $1)*) failwith "unsupported operation" }
 | exp PSTAR                  { `Star $1}
 | LPAR exp RPAR             { $2 }
 
