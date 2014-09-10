@@ -85,14 +85,24 @@ let applet tag =
   in
   let update () =
     let text = Js.to_string (textbox_draw##value) in
-    try
-      let (_,e,f) = Exprtools.get_eq text in
-      refresh 1 e;
-      refresh 2 f;
-      let res = handle Solve.solve text in
-      Wsolve.printval d valcell res;
-      Wsolve.printmsg d outmsg true true "Results:" res
-    with _ -> () 
+    begin
+      try
+	let (_,e,f) = Exprtools.get_eq text in
+	refresh 1 e;
+	refresh 2 f;
+      with _ -> 
+	begin	
+	  title1##innerHTML <- (Js.string ("Error"));
+	  fn1##innerHTML <- (Js.string ("Error"));
+	  title2##innerHTML <- (Js.string ("Error"));
+	  fn2##innerHTML <- (Js.string ("Error"));
+	  graph2##innerHTML <- (Js.string ("Error"));
+	  graph1##innerHTML <- (Js.string ("Error"))
+	end
+    end;
+    let res = handle Solve.solve text in
+    Wsolve.printval d valcell res;
+    Wsolve.printmsg d outmsg true true "Results:" res
   in
   update();
   textbox_draw##onchange <- Html.handler
