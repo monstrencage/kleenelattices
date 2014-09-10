@@ -72,11 +72,10 @@
 SOURCES = $(MLI) $(AUTRES) $(ML)
 
 MAIN = main.ml
-MLI = expr.mli exprtools.mli normal.mli solve.mli tools.mli petri.mli printPetri.mli word.mli
+MLI = expr.mli exprtools.mli solve.mli tools.mli petri.mli printPetri.mli word.mli
 #petri.mli printPetri.mli simul.mli unionFind.mli lts.mli printLts.mli
-ML = exprtools.ml normal.ml tools.ml word.ml petri.ml printPetri.ml solve.ml 
+ML = exprtools.ml tools.ml word.ml petri.ml printPetri.ml solve.ml 
 WEB = wdraw.ml wsolve.ml wdetsolve.ml
-# wsolveneat.ml
 # lts.ml printLts.ml
 # unionFind.ml printPetri.ml simul.ml
 AUTRES =  parser.mly lexer.mll
