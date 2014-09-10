@@ -127,7 +127,7 @@ let trad =
     | `Conv _ | `Zero ->
       failwith "Petri.trad : unsupported operation"
   in
-  (fun e -> (fst (aux 0 (Exprtools.normalise e))))
+  (fun e -> (fst (aux 0 (Normal.normalise e))))
 
 
 let candidates (p2,t2,i2,f2 : t) (m : readstate) (s,t : ptrans) 
