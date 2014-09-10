@@ -42,7 +42,8 @@ where an expression can use strings as variables/letters, and the operations :
 * `<expr1> | <expr2>` : the set union
 * `<expr1> & <expr2>` : the set intersection
 * `<expr1> . <expr2>` : the composition of relations
-* `<expr1>+` : the transitive closure of a relation.
+* `<expr1>+` : the transitive closure of a relation
+* `<expr1>{int}` : the iteration of a relation. For instance, `(a.b){3}` is a shorthand for `(a.b).(a.b).(a.b)`.
 
 You can also use brackets `(...)`.
 The valid comparaisons `<cmp>` are :
