@@ -2,12 +2,11 @@
 <html>
 
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Kleenelattices : Library and tools to compare identity-free regular expressions with intersection." />
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Kleenelattices : Library and tools to compare identity-free regular expressions with intersection.">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-    <link rel="icon" type="image/x-icon" href="images/rklm.ico">
 
     <title>Kleenelattices</title>
   </head>
@@ -35,8 +34,9 @@
         <h1>
 <a name="kleenelattices" class="anchor" href="#kleenelattices"><span class="octicon octicon-link"></span></a>Kleenelattices</h1>
 
-<p>Library and tools to compare identity-free regular expressions with intersection.
-<img src="images/rklm.png" alt="Logo"></p>
+<p>Library and tools to compare identity-free regular expressions with intersection.</p>
+
+<p>Project home page : <a href="http://monstrencage.github.io/kleenelattices">http://monstrencage.github.io/kleenelattices</a></p>
 
 <h2>
 <a name="required" class="anchor" href="#required"><span class="octicon octicon-link"></span></a>Required</h2>
@@ -88,7 +88,9 @@
 <li>
 <code>&lt;expr1&gt; . &lt;expr2&gt;</code> : the composition of relations</li>
 <li>
-<code>&lt;expr1&gt;+</code> : the transitive closure of a relation.</li>
+<code>&lt;expr1&gt;+</code> : the transitive closure of a relation</li>
+<li>
+<code>&lt;expr1&gt;{int}</code> : the iteration of a relation. For instance, <code>(a.b){3}</code> is a shorthand for <code>(a.b).(a.b).(a.b)</code>.</li>
 </ul><p>You can also use brackets <code>(...)</code>.
 The valid comparaisons <code>&lt;cmp&gt;</code> are :</p>
 
@@ -104,7 +106,7 @@ The valid comparaisons <code>&lt;cmp&gt;</code> are :</p>
 <li>
 <code>=</code> : equality</li>
 <li>
-<code>=/=</code> : negation of the equality</li>
+<code>=\=</code> : negation of the equality</li>
 <li>
 <code>&lt;&gt;</code> : means that the two expressions are incomparable, <em>i.e.</em> neither one of them is included in the other.</li>
 </ul><p>If <code>file</code> is a correct input file, then calling</p>
