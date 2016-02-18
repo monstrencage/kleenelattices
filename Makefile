@@ -284,6 +284,7 @@ $(NAME).js: $(OBJS) $(WOBJS)
 	$(CAMLYACC) $<
 
 clean::
+	rm -f .depend .depend.input
 	rm -f *.cm[iox] *~ .*~ *.o *.byte *.js *.web #*#
 	rm -f $(EXEC) $(EXECOPT)
 	rm -f $(NAME)*
