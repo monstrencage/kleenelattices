@@ -63,7 +63,7 @@ let applet tag =
   Dom.appendChild txtcell4 outmsg;
   let cmd i = 
     Printf.sprintf 
-      "new vis.Network(document.getElementById('%s_auto%d'),data, {})" 
+      "new vis.Network(document.getElementById('%s_auto%d'),data, {edges:{arrows:'to'}})" 
       (tag) i
   in
   let refresh i e =

@@ -146,7 +146,7 @@ let applet tag =
   Dom.appendChild txtcell2 preview_draw2;
   let cmd = 
     Printf.sprintf 
-      "new vis.Network(document.getElementById('%s_auto'),data, {})" 
+      "new vis.Network(document.getElementById('%s_auto'),data, {edges:{arrows:'to'}})" 
       (tag)
   in
   let update () = 
