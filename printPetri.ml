@@ -45,13 +45,13 @@ let printInterm chout n0 nb =
       i (i-n0)
   done
 
-let printFn chout k ps =
-  Printf.fprintf 
-    chout 
-    "Fn%d [label=\"%s\";shape=rectangle];\n" 
-    k (printiset ps)
+(* let printFn chout k ps = *)
+(*   Printf.fprintf  *)
+(*     chout  *)
+(*     "Fn%d [label=\"%s\";shape=rectangle];\n"  *)
+(*     k (printiset ps) *)
 
-let draw opts format (p,t,i,f : Petri.t) filename =
+let draw opts format (p,t,i : Petri.t) filename =
   let chout = open_out (filename^".gv") in
   let states = p in
   let n0 = ISet.max_elt states +1 in
@@ -64,12 +64,12 @@ let draw opts format (p,t,i,f : Petri.t) filename =
   Printf.fprintf 
     chout 
     "%d [label=\"%d\";shape=invhouse];\n" i i ;
-  let _ =
-    ISSet.fold
-      (fun s k -> printFn chout k s ; k+1)
-      f
-      0
-  in
+  (* let _ = *)
+  (*   ISSet.fold *)
+  (*     (fun s k -> printFn chout k s ; k+1) *)
+  (*     f *)
+  (*     0 *)
+  (* in *)
   ISet.iter
     (fun j ->
       Printf.fprintf 

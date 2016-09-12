@@ -17,93 +17,96 @@ open Tools
 open Expr
 
 
-type t = ISet.t * Trans.t * int * ISSet.t
+type t = ISet.t * Trans.t * int 
 
 let ( ++ ) = Trans.union
 let ( -- ) = Trans.diff
 
-let union (p1,t1,i1,f1 : t) (p2,t2,i2,f2 : t) : t =
+let union (p1,t1,i1 : t) (p2,t2,i2 : t) : t =
   let p = ISet.union p1 (ISet.remove i2 p2)
   and i = i1
-  and f = ISSet.union f1 f2
   and ti2 = (Trans.filter (fun (x,_) -> (ISet.mem i2 x)) t2)
   in
   let t = t1 ++ t2 -- ti2 ++ 
     (Trans.fold 
        (fun (_,t) -> Trans.add (ISet.singleton i1,t)) 
        ti2 Trans.empty) in
-  (p,t,i,f)
+  (p,t,i)
 
-let concat (p1,t1,i1,f1 : t) (p2,t2,i2,f2 : t) : t =
+let concat (p1,t1,i1 : t) (p2,t2,i2 : t) : t =
   let p = ISet.union p1 (ISet.remove i2 p2)
   and i = i1
-  and f = f2
   and ti2 = (Trans.filter (fun (x,_) -> (ISet.mem i2 x)) t2)
+  and tf1 = (Trans.filter (fun (_,x) -> (SISet.is_empty x)) t1)
   in
-  let t = t1 ++ t2 -- ti2 ++
-    (ISSet.fold
-       (fun f -> 
+  let t = t1 ++ t2 -- ti2 -- tf1 ++
+    (Trans.fold
+       (fun (f,_) -> 
 	 Trans.fold
 	   (fun (_,t) ->
 	     Trans.add (f,t))
 	   ti2)
-       f1
+       tf1
        Trans.empty) in
-  (p,t,i,f)
+  (p,t,i)
 
-let pstar  (p1,t1,i1,f1 : t) : t =
+let pstar  (p1,t1,i1 : t) : t =
   let p = p1
   and i = i1
-  and f = f1
   and ti1 = (Trans.filter (fun (x,_) -> (ISet.mem i1 x)) t1)
+  and tf1 = (Trans.filter (fun (_,x) -> (SISet.is_empty x)) t1)
   in
   let t = t1 ++
-    (ISSet.fold
-       (fun f -> 
+    (Trans.fold
+       (fun (f,_) -> 
 	 Trans.fold
 	   (fun (_,t) ->
 	     Trans.add (f,t))
 	   ti1)
-       f1
+       tf1
        Trans.empty) in
-  (p,t,i,f)
+  (p,t,i)
 
-let inter (p1,t1,i1,f1 : t) (p2,t2,i2,f2 : t) : t =
+let inter (p1,t1,i1 : t) (p2,t2,i2 : t) : t =
   let p = ISet.union p1 (ISet.remove i2 p2)
   and i = i1
-  and f = 
-    ISSet.fold 
-      (fun f -> 
-	ISSet.fold 
-	  (fun f' -> 
-	    ISSet.add 
-	      (ISet.union f f')) 
-	  f2) 
-      f1 ISSet.empty
+  and tf1 = (Trans.filter (fun (_,x) -> (SISet.is_empty x)) t1)
+  and tf2 = (Trans.filter (fun (_,x) -> (SISet.is_empty x)) t2)
   and ti1 = (Trans.filter (fun (x,_) -> (ISet.mem i1 x)) t1)
   and ti2 = (Trans.filter (fun (x,_) -> (ISet.mem i2 x)) t2)
   in
-  let t = t1 ++ t2 -- ti2 -- ti1 ++
-    (Trans.fold
-       (fun (_,t1) -> 
-	 Trans.fold
-	   (fun (_,t2) ->
-	     Trans.add (ISet.singleton i1,SISet.union t1 t2))
-	   ti2)
-       ti1
-       Trans.empty) in
-  (p,t,i,f)
+  let tf = 
+    Trans.fold 
+      (fun (f,_) -> 
+	Trans.fold 
+	  (fun (f',_) -> 
+	   Trans.add 
+	     (ISet.union f f',SISet.empty)) 
+	  tf2) 
+      tf1 Trans.empty
+  in
+  let t = t1 ++ t2 -- ti2 -- ti1 --tf1 --tf2 ++ tf ++
+	    (Trans.fold
+	       (fun (_,t1) -> 
+		Trans.fold
+		  (fun (_,t2) ->
+		   Trans.add (ISet.singleton i1,SISet.union t1 t2))
+		  ti2)
+	       ti1
+	       Trans.empty) in
+  (p,t,i)
 
 let trad =
   let rec aux k = function
     | `Var a ->
       let p = ISet.add (k+1) (ISet.singleton k)
-      and t = 
-	Trans.singleton 
-	  (ISet.singleton k,SISet.singleton (a,k+1))
-      and i = k
-      and f = ISSet.singleton (ISet.singleton (k+1)) in
-      ((p,t,i,f),k+2)
+      and t =
+	Trans.add
+	  (ISet.singleton (k+1),SISet.empty)
+	  (Trans.singleton 
+	     (ISet.singleton k,SISet.singleton (a,k+1)))
+      and i = k in
+      ((p,t,i),k+2)
     | `Union (e,f) ->
       let (a1,k1) = aux k e in
       let (a2,k2) = aux k1 f in
@@ -125,7 +128,7 @@ let trad =
   (fun e -> (fst (aux 0 e)))
 
 
-let candidates (p2,t2,i2,f2 : t) (m : readstate) (s,t : ptrans) 
+let candidates (p2,t2,i2 : t) (m : readstate) (s,t : ptrans) 
     : Trans.t list =
   let c0 = dom m in
   let compat trset (s',t') =
@@ -214,9 +217,9 @@ let read m tr1 trset =
     (MSet.singleton m)
 
 let simul_step 
-    (p2,t2,i2,f2 : t) (c,e : ISet.t * MSet.t) (s,t : ptrans) =
+    (p2,t2,i2 : t) (c,e : ISet.t * MSet.t) (s,t : ptrans) =
   let succ m acc =
-    let cand = (candidates (p2,t2,i2,f2) m (s,t)) in
+    let cand = (candidates (p2,t2,i2) m (s,t)) in
     List.fold_left 
       (fun acc tr -> 
 	MSet.union (read m (s,t) tr) acc) 
@@ -224,14 +227,14 @@ let simul_step
   in
   (progress c (s,t),MSet.fold succ e MSet.empty)
 
-let simul (p1,t1,i1,f1 : t) (p2,t2,i2,f2 : t) = 
-  let step = simul_step (p2,t2,i2,f2) in
+let simul (p1,t1,i1 : t) (p2,t2,i2 : t) = 
+  let step = simul_step (p2,t2,i2) in
   let get_word p = 
     Word.get_expr (Word.graph (List.rev p))
   in
   let good (c,e) =
-    if ISSet.mem c f1
-    then MSet.exists (fun m -> ISSet.mem (dom m) f2) e
+    if ISet.is_empty c
+    then MSet.exists (fun m -> ISet.is_empty (dom m)) e
     else true
   in
   let module LMSet = 

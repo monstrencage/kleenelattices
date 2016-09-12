@@ -16,7 +16,7 @@
 (** Module for Petri Automata. *)
 
 (** Type of an automaton. *)
-type t = Tools.ISet.t * Tools.Trans.t * int * Tools.ISSet.t
+type t = Tools.ISet.t * Tools.Trans.t * int
 
 (** Union of automata. *)
 val union : t -> t -> t

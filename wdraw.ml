@@ -36,6 +36,16 @@ let purple= Js.Unsafe.obj [|
   |]))
 |]
 
+
+let red= Js.Unsafe.obj [|
+  ("border", Js.Unsafe.inject ( Js.string "#8B0000"));
+  ("background", Js.Unsafe.inject ( Js.string "#DC143C"));
+  ("highlight", Js.Unsafe.inject ( Js.Unsafe.obj [|
+    ("border", Js.Unsafe.inject ( Js.string "#8B0000"));
+    ("background", Js.Unsafe.inject ( Js.string "#FF4864"))
+  |]))
+|]
+
 let node_trans nb i = 
   Js.Unsafe.obj 
     [| 
@@ -43,6 +53,16 @@ let node_trans nb i =
       ("label", Js.Unsafe.inject ( Js.string (Printf.sprintf "   %d   "  (i-nb))));
       ("shape", Js.Unsafe.inject ( Js.string "box" ));
       ("color", Js.Unsafe.inject ( green )); 
+      ("fontSize", Js.Unsafe.inject ( Js.number_of_float 25. ))
+    |]
+
+let node_fn_trans nb i = 
+  Js.Unsafe.obj 
+    [| 
+      ("id", Js.Unsafe.inject ( Js.string (Printf.sprintf "%d" i))) ;
+      ("label", Js.Unsafe.inject ( Js.string (Printf.sprintf "   %d   "  (i-nb))));
+      ("shape", Js.Unsafe.inject ( Js.string "box" ));
+      ("color", Js.Unsafe.inject ( red )); 
       ("fontSize", Js.Unsafe.inject ( Js.number_of_float 25. ))
     |]
 
@@ -86,15 +106,17 @@ let printTrans nb (s,t) (k,nodes,edges) =
     ISet.fold (fun p acc -> (edge_trans_init p k)::acc)
       s edges
   in
-  let edges'' = 
-    SISet.fold 
-      (fun (x,q) acc -> (edge_trans_lettre k x q)::acc)
-      t edges'
-  in
-  (k+1,(node_trans nb k)::nodes,edges'')
+  if SISet.is_empty t
+  then (k+1,(node_fn_trans nb k)::nodes,edges')
+  else
+    let edges'' = 
+      SISet.fold 
+	(fun (x,q) acc -> (edge_trans_lettre k x q)::acc)
+	t edges'
+    in (k+1,(node_trans nb k)::nodes,edges'')
      
 let data expr = 
-  let (p,tr,i,fn) = Petri.trad (Exprtools.get_string expr) in
+  let (p,tr,i) = Petri.trad (Exprtools.get_string expr) in
   let places = 
     ISet.fold
       (fun p acc -> 
@@ -112,11 +134,9 @@ let data expr =
 	(fun t acc -> printTrans nb t acc)
 	tr (nb,places,[])
   in
-  let fns = Printf.sprintf "Final states : %s" (printisset fn) in
   (Js.Unsafe.obj 
      [|("nodes",conv nodes);
-       ("edges",conv edges)|],
-   Js.string fns)
+       ("edges",conv edges)|])
 
 let applet tag =
   let d = Html.document in
@@ -152,10 +172,9 @@ let applet tag =
   let update () = 
     let text = Js.to_string (textbox_draw##value) in
     try
-      let data,fns = data text in
+      let data = data text in
       (Js.Unsafe.variable "window")##data <- data; 
-      Js.Unsafe.eval_string cmd;
-      preview_draw2##innerHTML <- fns
+      Js.Unsafe.eval_string cmd
     with _ -> () 
   in
   update();

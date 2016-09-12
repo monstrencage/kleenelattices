@@ -55,10 +55,8 @@ let applet tag =
   Dom.appendChild row2 txtcell3;
   Dom.appendChild txtcell2 title1;
   Dom.appendChild txtcell2 graph1;
-  Dom.appendChild txtcell2 fn1;
   Dom.appendChild txtcell3 title2;
   Dom.appendChild txtcell3 graph2;
-  Dom.appendChild txtcell3 fn2;
   Dom.appendChild row3 txtcell4;
   Dom.appendChild txtcell4 outmsg;
   let cmd i = 
@@ -68,19 +66,17 @@ let applet tag =
   in
   let refresh i e =
     let se = (Exprtools.print_expr e) in
-    let data,fns = Wdraw.data se in
+    let data = Wdraw.data se in
     (Js.Unsafe.variable "window")##data <- data; 
     Js.Unsafe.eval_string (cmd i);
     if i = 1
     then 
       begin
-	title1##innerHTML <- (Js.string ("Automaton for : "^se));
-	fn1##innerHTML <- fns
+	title1##innerHTML <- (Js.string ("Automaton for : "^se))
       end
     else
       begin
-	title2##innerHTML <- (Js.string ("Automaton for : "^se));
-	fn2##innerHTML <- fns
+	title2##innerHTML <- (Js.string ("Automaton for : "^se))
       end
   in
   let update () =

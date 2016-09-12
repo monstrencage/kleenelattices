@@ -103,7 +103,7 @@ let rec get_expr (i,w,o) =
     then failwith "get_expr : empty word"
     else
       match succ i w with
-      | [] -> failwith "get_expr : stuck" (*`Zero*)
+      | [] -> failwith "get_expr : stuck (1)" (*`Zero*)
       | [(x,a,y)] -> 
 	if y=o
 	then `Var a
@@ -147,7 +147,7 @@ let rec get_expr (i,w,o) =
 	     begin
 	       match later with
 	       | [_,a,_] -> `Var a
-	       | [] -> failwith "get_expr : stuck"
+	       | [] -> failwith "get_expr : stuck (2)"
 	       | (_,a,_)::later ->
 		 (List.fold_left (fun e (_,a,_) -> par (e,`Var a)) 
 		    (`Var a) later)
@@ -171,14 +171,14 @@ let nu (tr : ptrans list) k p =
 let graph tr =
   let n = List.length tr in
   let rec nu p k = function
-    | [] -> n
+    | [] -> failwith "Word.graph : unbound place"
     | (s,t)::lst -> 
       if ISet.mem p s 
       then k
       else nu p (k+1) lst
   in
   let rec aux e k = function
-    | [] -> (0,e,n)
+    | [] -> (0,e,n-1)
     | (s,t)::lst ->
       aux
 	(SISet.fold
