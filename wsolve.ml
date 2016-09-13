@@ -151,6 +151,7 @@ let applet tag =
 	and rescell = Html.createTd d
 (*	and simcell = Html.createTd d*)
 	and butt = Html.createButton d 
+	and i = Html.createImg d 
 	in
 	Dom.appendChild tab row;      
 	Dom.appendChild row buttcell;
@@ -159,6 +160,7 @@ let applet tag =
 	Dom.appendChild row rescell;
 (*	Dom.appendChild row simcell;*)
 	Dom.appendChild buttcell butt;
+	Dom.appendChild butt i;
 	Dom.appendChild txtcell textbox;
 	buttcell##style##verticalAlign <- Js.string "top";
 	txtcell##style##verticalAlign <- Js.string "top";
@@ -166,6 +168,7 @@ let applet tag =
 	rescell##style##verticalAlign <- Js.string "top";
 (*	simcell##style##verticalAlign <- Js.string "top";*)
 	textbox##size <- 50;
+	textbox##style##height <- Js.string "18px";
 	textbox##className <- Js.string "solvein";
 	textbox##value <- Js.string "enter equation here";
 	textbox##onfocus <- 
@@ -193,19 +196,25 @@ let applet tag =
 	in
 	textbox##onchange <- 
 	  Html.handler (fun e -> update (); Js._false);
-	butt##style##width <- Js.string "100px";
-	butt##innerHTML<- Js.string "Show Details";
+	butt##style##width <- Js.string "24px";
+	butt##style##padding <- Js.string "0 0";
+	butt##style##height <- Js.string "24px";
+	i##width <- 20;
+	i##src <- (Js.Unsafe.variable "window")##eyeopen;
+	i##title<- Js.string "Show details";
 	butt##onclick <- Html.handler 
 	  (fun _ -> 
 	    (match (!det) with
 	    | 0 ->		
-	      (butt##innerHTML<- Js.string "Hide Details";
+	      (i##src <- (Js.Unsafe.variable "window")##eyeclose;
+	       i##title<- Js.string "Hide details";
 	       det:=1)
 (*	    | 1 ->		
 	      (butt##innerHTML<- Js.string "Hide Details";
 	       det:=2)*)
 	    | _ ->
-	      (butt##innerHTML<- Js.string "Show Details";
+	      (i##src <- (Js.Unsafe.variable "window")##eyeopen;
+	       i##title<- Js.string "Show details";
 	       rescell##innerHTML<- Js.string "";
 (*	       simcell##innerHTML<- Js.string "";*)
 	       det:=0));
@@ -215,3 +224,4 @@ let applet tag =
     else ()
   in
   make_slot 1
+
